@@ -293,8 +293,6 @@
 					message = "salutes to [param]."
 				else
 					message = "salutes."
-
-				playsound(src.loc, 'sound/misc/salute.ogg', 30, 0)
 			m_type = 1
 
 		if ("choke")
