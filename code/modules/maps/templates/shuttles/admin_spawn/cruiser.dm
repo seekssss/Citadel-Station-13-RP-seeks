@@ -49,7 +49,7 @@
 
 /area/mothership/vault
 	name = "Daedalus - Vault"
-	area_flags = AREA_RAD_SHIELDED | AREA_BLUE_SHIELDED
+	area_flags = AREA_RAD_SHIELDED | AREA_FLAG_BLUE_SHIELDED
 
 /area/mothership/teleporter
 	name = "Daedalus - Teleporter Room"
@@ -86,7 +86,7 @@
 
 /area/mothership/armory
 	name = "Daedalus - Armory"
-	area_flags = AREA_RAD_SHIELDED | AREA_BLUE_SHIELDED
+	area_flags = AREA_RAD_SHIELDED | AREA_FLAG_BLUE_SHIELDED
 
 /area/mothership/bridge
 	name = "Daedalus - Bridge"
@@ -119,7 +119,7 @@
 	desc = "A large NT cruiser."
 	suffix = "cruiser.dmm"
 
-/obj/effect/overmap/visitable/ship/cruiser
+/obj/overmap/entity/visitable/ship/cruiser
 	name = "spacecraft"
 	desc = "Spacefaring vessel. NanoTrasen IFF detected."
 	scanner_name = "NDV Daedalus"

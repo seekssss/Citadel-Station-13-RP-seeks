@@ -8,20 +8,16 @@ window "mainwindow"
 		size = 640x480
 		anchor1 = -1,-1
 		anchor2 = -1,-1
-		background-color = none
 		is-default = true
 		saved-params = "pos;size;is-minimized;is-maximized"
 		icon = 'icons\\CS13.png'
 		macro = "default"
-		outer-size = 656x538
-		inner-size = 640x499
 	elem "split"
 		type = CHILD
 		pos = 0,0
 		size = 640x480
 		anchor1 = 0,0
 		anchor2 = 100,100
-		background-color = none
 		saved-params = "splitter"
 		left = "mapwindow"
 		right = "infowindow"
@@ -32,7 +28,6 @@ window "mainwindow"
 		size = 200x200
 		anchor1 = -1,-1
 		anchor2 = -1,-1
-		background-color = none
 		is-visible = false
 		saved-params = ""
 	elem "tooltip"
@@ -41,7 +36,6 @@ window "mainwindow"
 		size = 999x999
 		anchor1 = -1,-1
 		anchor2 = -1,-1
-		background-color = none
 		is-visible = false
 		saved-params = ""
 
@@ -52,8 +46,11 @@ window "mapwindow"
 		size = 640x480
 		anchor1 = -1,-1
 		anchor2 = -1,-1
+		background-color = none
 		saved-params = "pos;size;is-minimized;is-maximized"
 		is-pane = true
+		outer-size = 656x538
+		inner-size = 640x499
 	elem "map"
 		type = MAP
 		pos = 0,0
@@ -66,6 +63,15 @@ window "mapwindow"
 		saved-params = ""
 		on-size = ".on_viewport [[width]] [[height]] [[zoom]] [[letterbox]]"
 		style = ".center { text-align: center; } .maptext { font-family: 'Small Fonts'; font-size: 7px; -dm-text-outline: 1px black; color: white; line-height: 1.1; } .command_headset { font-weight: bold;\tfont-size: 8px; } .small { font-size: 6px; } .big { font-size: 8px; } .reallybig { font-size: 8px; } .extremelybig { font-size: 8px; } .greentext { color: #00FF00; font-size: 7px; } .redtext { color: #FF0000; font-size: 7px; } .clown { color: #FF69Bf; font-size: 7px;  font-weight: bold; } .his_grace { color: #15D512; } .hypnophrase { color: #0d0d0d; font-weight: bold; } .yell { font-weight: bold; } .italics { font-size: 6px; }"
+	elem "cutscenebrowser"
+		type = BROWSER
+		pos = 0,0
+		size = 640x480
+		anchor1 = 0,0
+		anchor2 = 100,100
+		background-color = #ffffff
+		is-visible = false
+		saved-params = ""
 
 window "preferences_window"
 	elem "preferences_window"
@@ -178,12 +184,15 @@ window "infowindow"
 window "outputwindow"
 	elem "outputwindow"
 		type = MAIN
-		pos = 0,0
+		pos = 281,0
 		size = 640x480
 		anchor1 = -1,-1
 		anchor2 = -1,-1
+		background-color = none
 		saved-params = "pos;size;is-minimized;is-maximized"
 		is-pane = true
+		outer-size = 656x538
+		inner-size = 640x499
 	elem "browseroutput"
 		type = BROWSER
 		pos = 0,0
@@ -200,6 +209,7 @@ window "outputwindow"
 		size = 40x20
 		anchor1 = 100,100
 		anchor2 = -1,-1
+		background-color = none
 		saved-params = "is-checked"
 		text = "Chat"
 		command = ".winset \"saybutton.is-checked=true?input.command=\"!say \\\"\" macrobutton.is-checked=false:input.command=\""
@@ -220,9 +230,10 @@ window "outputwindow"
 		size = 80x20
 		anchor1 = 100,100
 		anchor2 = -1,-1
+		background-color = none
 		saved-params = ""
 		text = "Hotkey Toggle"
-		command = ".winset \"mainwindow.macro!=macro ? mainwindow.macro=macro hotkey_toggle.is-checked=false input.focus=true : mainwindow.macro=hotkeymode hotkey_toggle.is-checked=true mapwindow.map.focus=true\""
+		command = "Toggle-Hotkeys"
 		button-type = pushbox
 	elem "output"
 		type = OUTPUT
@@ -238,23 +249,64 @@ window "outputwindow"
 		size = 200x200
 		anchor1 = -1,-1
 		anchor2 = -1,-1
+		background-color = none
 		is-visible = false
 		saved-params = ""
 
-window "statwindow"
-	elem "statwindow"
+window "stat_pane_browser"
+	elem "stat_pane_browser"
 		type = MAIN
-		pos = 372,0
+		pos = 281,0
 		size = 640x480
 		anchor1 = -1,-1
 		anchor2 = -1,-1
 		saved-params = "pos;size;is-minimized;is-maximized"
+		title = "Status Panel"
 		is-pane = true
 	elem "statbrowser"
+		type = BROWSER
+		pos = 0,0
+		size = 640x480
+		anchor1 = 0,0
+		anchor2 = 100,100
+		saved-params = ""
+
+window "stat_pane_byond"
+	elem "stat_pane_byond"
+		type = MAIN
+		pos = 281,0
+		size = 640x480
+		anchor1 = -1,-1
+		anchor2 = -1,-1
+		saved-params = "pos;size;is-minimized;is-maximized"
+		title = "Turf / Misc"
+		is-pane = true
+	elem "statpanel"
 		type = INFO
 		pos = 0,0
 		size = 640x480
 		anchor1 = 0,0
 		anchor2 = 100,100
 		saved-params = ""
+
+window "statwindow"
+	elem "statwindow"
+		type = MAIN
+		pos = 281,0
+		size = 640x480
+		anchor1 = -1,-1
+		anchor2 = -1,-1
+		saved-params = "pos;size;is-minimized;is-maximized"
+		is-pane = true
+	elem "stat_tab"
+		type = TAB
+		pos = 0,0
+		size = 640x480
+		anchor1 = 0,0
+		anchor2 = 100,100
+		saved-params = ""
+		tabs = "stat_pane_browser,stat_pane_byond"
+		current-tab = "stat_pane_browser,stat_pane_byond"
+		multi-line = false
+		on-tab = ".statswitcher [[*]]"
 

@@ -58,7 +58,7 @@
 	if(isnull(reachability_check))
 		if(clickchain_flags & CLICKCHAIN_TOOL_ACT)
 			// provided_item should never be null
-			reachability_check = CALLBACK(user, /atom/movable/proc/Reachability, src, null, provided_item.reach, provided_item)
+			reachability_check = CALLBACK(user, TYPE_PROC_REF(/atom/movable, Reachability), src, null, provided_item.reach, provided_item)
 	if(reachability_check && !reachability_check.Invoke())
 		return NONE
 	// from click chain
@@ -262,6 +262,7 @@
  * - user - the user, if any
  */
 /atom/proc/dynamic_tool_functions(obj/item/I, mob/user)
+	// todo: signal
 	return list()
 
 /atom/proc/_dynamic_tool_act(obj/item/I, mob/user, function, flags, hint)

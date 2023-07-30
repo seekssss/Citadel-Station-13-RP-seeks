@@ -75,12 +75,37 @@
 	idcard = new idcard_type(src)
 	set_id_info(idcard)
 
-/mob/living/silicon/proc/SetName(pickedName as text)
+/mob/living/silicon/proc/SetName(pickedName = "Alice")
 	real_name = pickedName
 	name = real_name
 
 /mob/living/silicon/proc/show_laws()
 	return
+
+/mob/living/silicon/PhysicalLife(seconds, times_fired)
+	if((. = ..()))
+		return
+	handle_modifiers()
+	handle_light()
+	handle_regular_hud_updates()
+	handle_vision()
+
+/mob/living/silicon/handle_regular_hud_updates()
+	. = ..()
+	SetSeeInvisibleSelf(SEE_INVISIBLE_LIVING)
+	SetSightSelf(SIGHT_FLAGS_DEFAULT)
+	if(bodytemp)
+		switch(src.bodytemperature) //310.055 optimal body temp
+			if(335 to INFINITY)
+				src.bodytemp.icon_state = "temp2"
+			if(320 to 335)
+				src.bodytemp.icon_state = "temp1"
+			if(300 to 320)
+				src.bodytemp.icon_state = "temp0"
+			if(260 to 300)
+				src.bodytemp.icon_state = "temp-1"
+			else
+				src.bodytemp.icon_state = "temp-2"
 
 /mob/living/silicon/emp_act(severity)
 	switch(severity)
@@ -116,7 +141,7 @@
 			"<span class='danger'>Energy pulse detected, system damaged!</span>", \
 			"<span class='warning'>You hear an electrical crack.</span>")
 		if(prob(20))
-			Stun(2)
+			afflict_stun(20 * 2)
 		return
 
 /mob/living/silicon/proc/damage_mob(var/brute = 0, var/fire = 0, var/tox = 0)
@@ -125,7 +150,7 @@
 /mob/living/silicon/IsAdvancedToolUser()
 	return 1
 
-/mob/living/silicon/bullet_act(var/obj/item/projectile/Proj)
+/mob/living/silicon/bullet_act(var/obj/projectile/Proj)
 
 	if(!Proj.nodamage)
 		switch(Proj.damage_type)
@@ -135,12 +160,11 @@
 				adjustFireLoss(Proj.get_final_damage(src))
 
 	Proj.on_hit(src,2)
-	updatehealth()
+	update_health()
 	return 2
 
 /mob/living/silicon/apply_effect(var/effect = 0,var/effecttype = STUN, var/blocked = 0, var/check_protection = 1)
 	return 0//The only effect that can hit them atm is flashes and they still directly edit so this works for now
-
 
 /proc/islinked(var/mob/living/silicon/robot/bot, var/mob/living/silicon/ai/ai)
 	if(!istype(bot) || !istype(ai))
@@ -149,34 +173,25 @@
 		return 1
 	return 0
 
-
 // this function shows the health of the AI in the Status panel
 /mob/living/silicon/proc/show_system_integrity()
+	. = list()
 	if(!src.stat)
-		stat(null, text("System integrity: [round((health/getMaxHealth())*100)]%"))
+		STATPANEL_DATA_LINE("System integrity: [round((health/getMaxHealth())*100)]%")
 	else
-		stat(null, text("Systems nonfunctional"))
-
+		STATPANEL_DATA_LINE("Systems nonfunctional")
 
 // This is a pure virtual function, it should be overwritten by all subclasses
 /mob/living/silicon/proc/show_malf_ai()
-	return 0
-
-// this function displays the shuttles ETA in the status panel if the shuttle has been called
-/mob/living/silicon/proc/show_emergency_shuttle_eta()
-	if(SSemergencyshuttle)
-		var/eta_status = SSemergencyshuttle.get_status_panel_eta()
-		if(eta_status)
-			stat(null, eta_status)
-
+	return list()
 
 // This adds the basic clock, shuttle recall timer, and malf_ai info to all silicon lifeforms
-/mob/living/silicon/Stat()
-	if(statpanel("Status"))
-		show_emergency_shuttle_eta()
-		show_system_integrity()
-		show_malf_ai()
-	..()
+/mob/living/silicon/statpanel_data(client/C)
+	. = ..()
+	if(C.statpanel_tab("Status"))
+		STATPANEL_DATA_LINE("")
+		. += show_system_integrity()
+		. += show_malf_ai()
 
 // this function displays the stations manifest in a separate window
 /mob/living/silicon/proc/show_station_manifest()
@@ -300,7 +315,7 @@
 			if (stat != 2)
 				adjustBruteLoss(30)
 
-	updatehealth()
+	update_health()
 
 /mob/living/silicon/proc/receive_alarm(var/datum/alarm_handler/alarm_handler, var/datum/alarm/alarm, was_raised)
 	if(!next_alarm_notice)
@@ -377,10 +392,6 @@
 
 /mob/living/silicon/setEarDamage()
 	return
-
-/mob/living/silicon/reset_perspective(datum/perspective/P, apply = TRUE, forceful = TRUE, no_optimizations)
-	. = ..()
-	cameraFollow = null
 
 /mob/living/silicon/flash_eyes(intensity = FLASH_PROTECTION_MODERATE, override_blindness_check = FALSE, affect_silicon = FALSE, visual = FALSE, type = /atom/movable/screen/fullscreen/tiled/flash)
 	if(affect_silicon)

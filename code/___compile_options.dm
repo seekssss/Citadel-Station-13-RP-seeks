@@ -1,23 +1,23 @@
-//* Core settings
-//! Fastboot flags - useful for debugging
-/// Disable automatic roundstart icon smoothing.
-// #define FASTBOOT_DISABLE_SMOOTHING (1<<0)
-/// Disable loading late maps.
-// #define FASTBOOT_DISABLE_LATELOAD (1<<1)
-/// Disable atmospherics zone build.
-// #define FASTBOOT_DISABLE_ZONES (1<<2)
+//? This is here because the linter will explode if this isn't here. Don't believe me? Remove it. I dare you.
+/datum/language_server_error_blocker
 
+//## Core settings
+//! Fastboot flags - useful for debugging
+/// Disable loading late maps.
+// #define FASTBOOT_DISABLE_LATELOAD
+/// Disable automatic roundstart icon smoothing.
+// #define FASTBOOT_DISABLE_SMOOTHING
+/// Disable atmospherics zone build.
+// #define FASTBOOT_DISABLE_ZONES
 
 /// Enables the ability to cache datum vars and retrieve later for debugging which vars changed.
 // #define DATUMVAR_DEBUGGING_MODE
-
 
 /// Comment this out if you are debugging problems that might be obscured by custom error handling in world/Error.
 #ifdef DEBUG
 	#define USE_CUSTOM_ERROR_HANDLER
 	#define DEBUG_SHUTTLES
 #endif
-
 
 /**
  * By using the testing("message") proc you can create debug-feedback for people with this uncommented,
@@ -41,10 +41,10 @@
 
 		/// Run a lookup on things hard deleting by default.
 		// #define GC_FAILURE_HARD_LOOKUP
-		#ifdef GC_FAILURE_HARD_LOOKUP
-			/// Don't stop when searching, go till you're totally done.
-			#define FIND_REF_NO_CHECK_TICK
-		#endif //ifdef GC_FAILURE_HARD_LOOKUP
+
+		/// Don't stop when searching, go till you're totally done.
+		#define FIND_REF_NO_CHECK_TICK
+
 	#endif
 
 
@@ -57,15 +57,6 @@
 	 * ! Not implemented yet.
 	 */
 	// #define REAGENTS_TESTING
-
-
-	/**
-	 * Displays static object lighting updates.
-	 *
-	 * Also enables some debug vars on sslighting that can be used to modify
-	 * how extensively we prune lighting corners to update.
-	 */
-	#define VISUALIZE_LIGHT_UPDATES
 
 
 	/// Highlights atmos active turfs in green.
@@ -133,13 +124,7 @@
 	#define PRELOAD_RSC	2
 #endif
 
-
-#ifdef LOWMEMORYMODE
-	#define FORCE_MAP "_maps/rift.json" //TODO: A PROPER runtime or ministation map. @Zandario
-#endif
-
-
-//! CBT BUILD DEFINES
+// ## CBT BUILD DEFINES
 
 #ifdef CIBUILDING
 	#define UNIT_TESTS
@@ -150,21 +135,34 @@
 #endif
 
 
-//! LEGACY WARNING
+#ifdef TGS
+// TGS performs its own build of dm.exe, but includes a prepended TGS define.
+#define CBT
+#endif
+
+// ## LEGACY WARNING
 #if !defined(CBT) && !defined(SPACEMAN_DMM)
 	#warn Building with Dream Maker is no longer supported and will result in errors.
 	#warn In order to build, run BUILD.bat in the root directory.
 	#warn Consider switching to VSCode editor instead, where you can press Ctrl+Shift+B to build.
 #endif
 
+/**
+ * ## MAPPING
+ * IN_MAP_EDITOR macro is used to make some things appear visually more clearly in the map editor
+ * this handles StrongDMM (and other editors using SpacemanDMM parser), toggle it manually if using a different editor
+ */
+#if (defined(SPACEMAN_DMM) || defined(FASTDMM))
+#define IN_MAP_EDITOR
+#endif
 
 
 /**
- ** Modules follow
+ * ## Modules follow
  */
 
 
-//! Atmospherics
+// ## Atmospherics
 
 //? Gasmixtures
 /// Enable general assertions.
@@ -194,7 +192,7 @@
 
 
 
-//! Overlays
+// ## Overlays
 /**
  * A reasonable number of maximum overlays an object needs.
  * If you think you need more, rethink it.
@@ -202,6 +200,11 @@
 #define MAX_ATOM_OVERLAYS 100
 
 
+// ## Timers
 
-//! Timers
 // #define TIMER_LOOP_DEBUGGING
+
+
+// ## Lighting
+
+// #define AO_USE_LIGHTING_OPACITY

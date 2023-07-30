@@ -5,18 +5,23 @@
  */
 #define RAD_BACKGROUND_RADIATION 9
 
+/**
+ * maximum cycles a pulse can go for
+ */
+#define RAD_MAXIMUM_CYCLES 50
+
 //! Pulse - Falloff
 //* When updating, write what it's for and how it's used so future coders don't have a Bad Time
 
 //? Only defaults are defined for the above reasons.
 /// default falloff
-#define RAD_FALLOFF_NORMAL 0.5
+#define RAD_FALLOFF_NORMAL 0.75
 /// default falloff for contaminated objects
-#define RAD_FALLOFF_CONTAMINATION_NORMAL 2
+#define RAD_FALLOFF_CONTAMINATION_NORMAL 1.25
 /// default falloff for anomalies
-#define RAD_FALLOFF_ANOMALY 0.33
+#define RAD_FALLOFF_ANOMALY 0.5
 /// default falloff for smashed anomalies
-#define RAD_FALLOFF_ANOMALY_SHARDS 0.25
+#define RAD_FALLOFF_ANOMALY_SHARDS 0.33
 /// fission engine
 #define RAD_FALLOFF_ENGINE_FISSION 0.5
 /// fusion engine

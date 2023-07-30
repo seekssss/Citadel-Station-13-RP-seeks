@@ -70,7 +70,7 @@ This actually tests if they have the same entries and values.
 	return tim_sort(L, order >= 0 ? /proc/cmp_records_asc : /proc/cmp_records_dsc)
 
 //any value in a list
-/proc/sortList(list/L, cmp=/proc/cmp_text_asc)
+/proc/sortList(list/L, cmp= GLOBAL_PROC_REF(cmp_text_asc))
 	return tim_sort(L.Copy(), cmp)
 
 //uses sortList() but uses the var's name specifically. This should probably be using mergeAtom() instead
@@ -372,10 +372,13 @@ proc/dd_sortedObjectList(list/incoming)
 	return "[sanitize_old(last_name)]"
 
 
-//creates every subtype of prototype (excluding prototype) and adds it to list L.
-//if no list/L is provided, one is created.
+/**
+ * Creates every subtype of prototype (excluding prototype) and adds it to list L.
+ * If no list/L is provided, one is created.
+ */
 /proc/init_subtypes(prototype, list/L)
-	if(!istype(L))	L = list()
+	if(!istype(L))
+		L = list()
 	for(var/path in subtypesof(prototype))
 		L += new path()
 	return L

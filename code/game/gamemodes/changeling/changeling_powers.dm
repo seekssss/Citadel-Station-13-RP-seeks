@@ -74,18 +74,14 @@ var/global/list/possible_changeling_IDs = list("Alpha","Beta","Gamma","Delta","E
 	if(!mind.changeling)
 		mind.changeling = new /datum/changeling(gender)
 
-	verbs += /datum/changeling/proc/EvolutionMenu
-	verbs += /mob/proc/changeling_respec
+	add_verb(src, /datum/changeling/proc/EvolutionMenu)
+	add_verb(src, /mob/proc/changeling_respec)
 	add_language("Changeling")
 
 	var/lesser_form = !ishuman(src)
 
-	if(!powerinstances.len)
-		for(var/P in powers)
-			powerinstances += new P()
-
 	// Code to auto-purchase free powers.
-	for(var/datum/power/changeling/P in powerinstances)
+	for(var/datum/power/changeling/P in GLOB.changeling_powers)
 		if(!P.genomecost) // Is it free?
 			if(!(P in mind.changeling.purchased_powers)) // Do we not have it already?
 				mind.changeling.purchasePower(mind, P.name, 0)// Purchase it. Don't remake our verbs, we're doing it after this.
@@ -94,7 +90,7 @@ var/global/list/possible_changeling_IDs = list("Alpha","Beta","Gamma","Delta","E
 		if(P.isVerb)
 			if(lesser_form && !P.allowduringlesserform)	continue
 			if(!(P in src.verbs))
-				src.verbs += P.verbpath
+				add_verb(src, P.verbpath)
 			if(P.make_hud_button)
 				if(!src.ability_master)
 					src.ability_master = new /atom/movable/screen/movable/ability_master(src)
@@ -123,7 +119,7 @@ var/global/list/possible_changeling_IDs = list("Alpha","Beta","Gamma","Delta","E
 		return
 	for(var/datum/power/changeling/P in mind.changeling.purchased_powers)
 		if(P.isVerb)
-			verbs -= P.verbpath
+			remove_verb(src, P.verbpath)
 			var/atom/movable/screen/ability/verb_based/changeling/C = ability_master.get_ability_by_proc_ref(P.verbpath)
 			if(C)
 				ability_master.remove_ability(C)
@@ -221,7 +217,7 @@ var/global/list/possible_changeling_IDs = list("Alpha","Beta","Gamma","Delta","E
 		to_chat(src, SPAN_WARNING("We cannot reach \the [M] with a sting!"))
 		return 0 //One is inside, the other is outside something.
 	// Maximum queued turfs set to 25; I don't *think* anything raises sting_range above 2, but if it does the 25 may need raising
-	if(!AStar(src.loc, M.loc, /turf/proc/AdjacentTurfsRangedSting, /turf/proc/Distance, max_nodes=25, max_node_depth=sting_range)) //If we can't find a path, fail
+	if(!AStar(src.loc, M.loc, TYPE_PROC_REF(/turf, AdjacentTurfsRangedSting), TYPE_PROC_REF(/turf, Distance), max_nodes=25, max_node_depth=sting_range)) //If we can't find a path, fail
 		to_chat(src, SPAN_WARNING("We cannot find a path to sting \the [M] by!"))
 		return 0
 	return 1
@@ -252,9 +248,9 @@ var/global/list/possible_changeling_IDs = list("Alpha","Beta","Gamma","Delta","E
 
 	changeling.chem_charges -= required_chems
 	changeling.sting_range = 1
-	src.verbs -= verb_path
+	remove_verb(src, verb_path)
 	spawn(10)
-		src.verbs += verb_path
+		add_verb(src, verb_path)
 
 	to_chat(src, SPAN_NOTICE("We stealthily sting [T]."))
 	if(!T.mind || !T.mind.changeling)

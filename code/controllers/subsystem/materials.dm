@@ -23,14 +23,20 @@ SUBSYSTEM_DEF(materials)
 /datum/controller/subsystem/materials/proc/initialize_materials()
 	material_lookup = list()
 	legacy_material_lookup = list()
+
 	for(var/path in subtypesof(/datum/material))
-		var/datum/material/M = path
-		if(initial(M.abstract_type) == path)
+		var/datum/material/mat_ref = path
+		if(initial(mat_ref.abstract_type) == path)
 			continue
-		M = new path
+
+		mat_ref = new path
+		// Initialize the material. It'll return TRUE if everything went well.
+		if(!mat_ref.Initialize())
+			CRASH("Failed to initialize material [mat_ref.name]!")
+
 		// why are we doing initial() here? because the unit test checks for initial.
-		material_lookup[initial(M.id)] = M
-		legacy_material_lookup[lowertext(M.name)] = M
+		material_lookup[initial(mat_ref.id)] = mat_ref
+		legacy_material_lookup[lowertext(mat_ref.name)] = mat_ref
 
 /**
  * fetches material instance
@@ -73,3 +79,32 @@ SUBSYSTEM_DEF(materials)
  */
 /proc/get_material_by_name(name)
 	return SSmaterials.legacy_material_lookup[name]
+
+/**
+ * tgui materials context
+ *
+ * generates data for tgui/interfaces/common/Materials.tsx:
+ * * MaterialsContext
+ * * FullMaterialsContext
+ *
+ * @params
+ * * ids - material ids. defaults to all.
+ * * full - for FullMaterialsContext? usually not needed.
+ */
+/datum/controller/subsystem/materials/proc/tgui_materials_context(list/ids, full = FALSE)
+	var/list/data = list()
+	// a hack to make this default to all if not specified.
+	for(var/id in ids || material_lookup)
+		var/datum/material/mat = material_lookup[id]
+		var/list/built = list(
+			"name" = mat.display_name || mat.name,
+			"id" = mat.id,
+			"iconKey" = mat.tgui_icon_key,
+			"sheetAmount" = SHEET_MATERIAL_AMOUNT,
+		)
+		data[mat.id] = built
+	// todo: per-material sheetAmount
+	return list(
+		"materials" = data,
+		"sheetAmount" = SHEET_MATERIAL_AMOUNT,
+	)

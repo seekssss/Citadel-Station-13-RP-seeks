@@ -6,7 +6,7 @@
 	volume = 30
 	unacidable = 1 //glass
 	center_of_mass = list("x"=16, "y"=10)
-	matter = list(MAT_GLASS = 500)
+	materials = list(MAT_GLASS = 500)
 	icon = 'icons/obj/drinks.dmi'
 
 /obj/item/reagent_containers/food/drinks/metaglass/on_reagent_change()
@@ -893,7 +893,7 @@ Drinks Data
 /datum/reagent/ethanol/lastcactus
 	glass_icon_state = "lastcactus"
 
-/datum/reagent/ethanol/rootbeerfloat
+/datum/reagent/drink/soda/rootbeerfloat
 	glass_icon_state = "rootbeerfloat"
 
 /datum/reagent/ethanol/thebestboy
@@ -1005,3 +1005,16 @@ Drinks Data
 
 /datum/reagent/ethanol/holygrail
 	glass_icon_state = "holygrail"
+
+//Never Fade Away
+/datum/reagent/ethanol/silverhand
+	glass_icon_state = "silverhand"
+	glass_center_of_mass = list("x"=16, "y"=8)
+
+/datum/reagent/ethanol/welles
+	glass_icon_state = "welles"
+	glass_center_of_mass = list("x"=16, "y"=8)
+
+/datum/reagent/ethanol/martinez
+	glass_icon_state = "martinez"
+	glass_center_of_mass = list("x"=16, "y"=8)

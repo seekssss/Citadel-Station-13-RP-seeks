@@ -18,6 +18,7 @@
 	name = "Class-H Desert Planet"
 	desc = "A nearly hostile, and almost barren, planet that orbits pretty close to its star. There is a high level of CO2 in the air."
 	current_time = new /datum/time/classh()
+	weather_holder = /datum/weather_holder/classh
 
 /datum/planet/classh/update_sun()
 	..()
@@ -95,8 +96,7 @@
 
 		new_color = rgb(new_r, new_g, new_b)
 
-	spawn(1)
-		update_sun_deferred(2, new_brightness, new_color)
+	update_sun_deferred(new_brightness, new_color)
 
 
 /datum/weather_holder/classh

@@ -7,6 +7,9 @@
 	use_power = USE_POWER_IDLE
 	idle_power_usage = 300
 	active_power_usage = 300
+	depth_level = 8
+	depth_projected = TRUE
+	climb_allowed = TRUE
 	//blocks_emissive = FALSE
 	var/processing = FALSE
 
@@ -45,17 +48,17 @@
 				return
 			if (prob(50))
 				for(var/x in verbs)
-					verbs -= x
+					remove_obj_verb(src, x)
 				set_broken()
 		if(3.0)
 			if (prob(25))
 				for(var/x in verbs)
-					verbs -= x
+					remove_obj_verb(src, x)
 				set_broken()
 		else
 	return
 
-/obj/machinery/computer/bullet_act(var/obj/item/projectile/Proj)
+/obj/machinery/computer/bullet_act(var/obj/projectile/Proj)
 	if(prob(Proj.get_structure_damage()))
 		set_broken()
 	..()
@@ -93,7 +96,7 @@
 	var/overlay_state = icon_screen
 	if(machine_stat & BROKEN)
 		overlay_state = "[icon_state]_broken"
-	. += mutable_appearance(icon, overlay_state)
+	. += overlay_state
 	//. += emissive_appearance(icon, overlay_state)
 	playsound(src, 'sound/machines/terminal_on.ogg', 50, 1)
 

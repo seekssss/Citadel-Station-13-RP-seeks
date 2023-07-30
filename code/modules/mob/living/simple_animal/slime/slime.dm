@@ -125,7 +125,7 @@
 
 /mob/living/simple_animal/slime/Initialize(mapload, start_as_adult = FALSE)
 	. = ..()
-	verbs += /mob/living/proc/ventcrawl
+	add_verb(src, /mob/living/proc/ventcrawl)
 	if(start_as_adult)
 		make_adult()
 	health = maxHealth
@@ -241,7 +241,7 @@
 	unity = TRUE
 	attack_same = FALSE
 
-/mob/living/simple_animal/slime/examine(mob/user)
+/mob/living/simple_animal/slime/examine(mob/user, dist)
 	. = list("<span class='info'>This is [icon2html(src, user)] \a <EM>[src]</EM>!")
 	if(hat)
 		. += "It is wearing \a [hat]." //slime hat. slat? hlime?
@@ -363,7 +363,7 @@
 			var/mob/living/simple_animal/slime/new_slime = pick(babies)
 			new_slime.universal_speak = universal_speak
 			if(src.mind)
-				src.mind.transfer_to(new_slime)
+				src.mind.transfer(new_slime)
 			else
 				new_slime.key = src.key
 			qdel(src)
@@ -469,11 +469,11 @@
 	return FALSE
 
 
-/mob/living/simple_animal/slime/get_description_interaction()
+/mob/living/simple_animal/slime/get_description_interaction(mob/user)
 	var/list/results = list()
 
 	if(!stat)
-		results += "[desc_panel_image("slimebaton")]to stun the slime, if it's being bad."
+		results += "[desc_panel_image("slimebaton", user)]to stun the slime, if it's being bad."
 
 	results += ..()
 

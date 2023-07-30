@@ -8,7 +8,12 @@
 	desc = "A gas circulator turbine and heat exchanger."
 	icon = 'icons/obj/power.dmi'
 	icon_state = "circ-unassembled"
-	anchored = 0
+	layer = OBJ_LAYER
+	plane = OBJ_PLANE
+	climb_allowed = TRUE
+	depth_projected = TRUE
+	depth_level = 12
+	anchored = FALSE
 	pipe_flags = PIPING_DEFAULT_LAYER_ONLY|PIPING_ONE_PER_TURF
 
 	var/kinetic_efficiency = 0.04 //combined kinetic and kinetic-to-electric efficiency
@@ -133,7 +138,7 @@
 /obj/machinery/atmospherics/component/binary/circulator/verb/rotate_clockwise()
 	set name = "Rotate Circulator Clockwise"
 	set category = "Object"
-	set src in view(1)
+	set src in oview(1)
 
 	if (usr.stat || usr.restrained() || anchored)
 		return
@@ -145,7 +150,7 @@
 /obj/machinery/atmospherics/component/binary/circulator/verb/rotate_counterclockwise()
 	set name = "Rotate Circulator Counterclockwise"
 	set category = "Object"
-	set src in view(1)
+	set src in oview(1)
 
 	if (usr.stat || usr.restrained() || anchored)
 		return

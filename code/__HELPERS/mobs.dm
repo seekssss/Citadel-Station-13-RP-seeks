@@ -55,12 +55,12 @@
 		valid += id
 	return SAFEPICK(valid)
 
-/proc/sanitize_name(name, species = SPECIES_HUMAN)
+/proc/sanitize_species_name(name, species = SPECIES_HUMAN)
 	var/datum/species/current_species
 	if(species)
 		current_species = SScharacters.resolve_species_name(species)
 
-	return current_species ? current_species.sanitize_name(name) : sanitizeName(name, MAX_NAME_LEN)
+	return current_species ? current_species.sanitize_species_name(name) : sanitizeName(name, MAX_NAME_LEN)
 
 /proc/random_name(gender, species = SPECIES_HUMAN)
 
@@ -132,9 +132,9 @@
 	var/target_str = key_name(target)
 
 	if(ismob(user))
-		user.attack_log += text("\[[time_stamp()]\] <font color='red'>Attacked [target_str]: [what_done]</font>")
+		user.attack_log += "\[[time_stamp()]\] <font color='red'>Attacked [target_str]: [what_done]</font>"
 	if(ismob(target))
-		target.attack_log += text("\[[time_stamp()]\] <font color='orange'>Attacked by [user_str]: [what_done]</font>")
+		target.attack_log += "\[[time_stamp()]\] <font color='orange'>Attacked by [user_str]: [what_done]</font>"
 	log_attack(user_str,target_str,what_done)
 	if(admin_notify)
 		msg_admin_attack("[key_name_admin(user)] vs [target_str]: [what_done]")
@@ -170,6 +170,7 @@
 	return humans
 
 /proc/cached_character_icon(mob/desired)
+	desired.compile_overlays()
 	var/cachekey = "\ref[desired][desired.real_name]"
 
 	if(cached_character_icons[cachekey])

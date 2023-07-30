@@ -88,19 +88,20 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 	usr << browse(dat.Join(), "window=ahelp_list[state];size=600x480")
 
 //Tickets statpanel
-/datum/admin_help_tickets/proc/stat_entry()
+/datum/admin_help_tickets/proc/stat_data()
+	. = list()
 	var/num_disconnected = 0
-	stat("Active Tickets:", astatclick.update("[active_tickets.len]"))
+	STATPANEL_DATA_CLICK("Active Tickets:", "[active_tickets.len]", "\ref[astatclick]")
 	for(var/I in active_tickets)
 		var/datum/admin_help/AH = I
 		if(AH.initiator)
-			stat("#[AH.id]. [AH.initiator_key_name]:", AH.statclick.update())
+			STATPANEL_DATA_CLICK("#[AH.id]. [AH.initiator_key_name]:", "[AH.statclick.update()]", "\ref[AH.statclick]")
 		else
 			++num_disconnected
 	if(num_disconnected)
-		stat("Disconnected:", astatclick.update("[num_disconnected]"))
-	stat("Closed Tickets:", cstatclick.update("[closed_tickets.len]"))
-	stat("Resolved Tickets:", rstatclick.update("[resolved_tickets.len]"))
+		STATPANEL_DATA_CLICK("Disconnected:", "[num_disconnected]", "\ref[astatclick]")
+	STATPANEL_DATA_CLICK("Closed Tickets:", "[closed_tickets.len]", "\ref[cstatclick]")
+	STATPANEL_DATA_CLICK("Resolved Tickets:", "[resolved_tickets.len]", "\ref[rstatclick]")
 
 //Reassociate still open ticket if one exists
 /datum/admin_help_tickets/proc/ClientLogin(client/C)
@@ -402,9 +403,9 @@ INITIALIZE_IMMEDIATE(/obj/effect/statclick/ticket_list)
 			dat += "CLOSED"
 		else
 			dat += "UNKNOWN"
-	dat += "</b>[GLOB.TAB][TicketHref("Refresh", ref_src)][GLOB.TAB][TicketHref("Re-Title", ref_src, "retitle")]"
+	dat += "</b>[FOURSPACES][TicketHref("Refresh", ref_src)][FOURSPACES][TicketHref("Re-Title", ref_src, "retitle")]"
 	if(state != AHELP_ACTIVE)
-		dat += "[GLOB.TAB][TicketHref("Reopen", ref_src, "reopen")]"
+		dat += "[FOURSPACES][TicketHref("Reopen", ref_src, "reopen")]"
 	dat += "<br><br>Opened at: [gameTimestamp(wtime = opened_at)] (Approx [(world.time - opened_at) / 600] minutes ago)"
 	if(closed_at)
 		dat += "<br>Closed at: [gameTimestamp(wtime = closed_at)] (Approx [(world.time - closed_at) / 600] minutes ago)"
@@ -412,7 +413,7 @@ INITIALIZE_IMMEDIATE(/obj/effect/statclick/ticket_list)
 	if(initiator)
 		dat += "<b>Actions:</b> [FullMonty(ref_src)]<br>"
 	else
-		dat += "<b>DISCONNECTED</b>[GLOB.TAB][ClosureLinks(ref_src)]<br>"
+		dat += "<b>DISCONNECTED</b>[FOURSPACES][ClosureLinks(ref_src)]<br>"
 	dat += "<br><b>Log:</b><br><br>"
 	for(var/I in _interactions)
 		dat += "[I]<br>"
@@ -479,7 +480,7 @@ INITIALIZE_IMMEDIATE(/obj/effect/statclick/ahelp)
 //
 
 /client/proc/giveadminhelpverb()
-	src.verbs |= /client/verb/adminhelp
+	add_verb(src, /client/verb/adminhelp)
 	deltimer(adminhelptimerid)
 	adminhelptimerid = 0
 
@@ -505,8 +506,13 @@ INITIALIZE_IMMEDIATE(/obj/effect/statclick/ahelp)
 	msg = sanitize(msg)
 
 	//remove out adminhelp verb temporarily to prevent spamming of admins.
-	src.verbs -= /client/verb/adminhelp
-	adminhelptimerid = addtimer(CALLBACK(src, .proc/giveadminhelpverb), 2 MINUTES, flags = TIMER_STOPPABLE)
+	remove_verb(src, /client/verb/adminhelp)
+	adminhelptimerid = addtimer(CALLBACK(src, PROC_REF(giveadminhelpverb)), 2 MINUTES, flags = TIMER_STOPPABLE)
+
+	if(persistent.ligma)
+		to_chat(usr, "<span class='adminnotice'>PM to-<b>Admins</b>: [msg]</span>")
+		log_shadowban("[key_name(src)] AHELP: [msg]")
+		return
 
 	feedback_add_details("admin_verb","Adminhelp") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 	if(current_ticket)
