@@ -1,4 +1,8 @@
+//* This file is explicitly licensed under the MIT license. *//
+//* Copyright (c) 2023 Citadel Station developers.          *//
+
 SUBSYSTEM_DEF(research)
+	name = "Research"
 	subsystem_flags = SS_NO_FIRE
 	init_order = INIT_ORDER_RESEARCH
 

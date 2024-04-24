@@ -37,7 +37,7 @@
 //Medical
 /datum/loadout_entry/restricted/medical
 	subcategory = "Medical"
-	allowed_roles = list("Medical Doctor", "Chief Medical Officer", "Chemist", "Paramedic", "Geneticist", "Psychiatrist", "Field Medic", "Head Nurse")
+	allowed_roles = list("Medical Doctor", "Chief Medical Officer", "Chemist", "Paramedic", "Geneticist", "Psychiatrist", "Field Medic", "Senior Physician")
 
 /datum/loadout_entry/restricted/medical/eyes
 	slot = SLOT_ID_GLASSES
@@ -89,7 +89,7 @@
 //Command
 /datum/loadout_entry/restricted/command
 	subcategory = "Command"
-	allowed_roles = list("Facility Director", "Head of Personnel", "Chief Medical Officer", "Head of Security", "Research Director", "Chief Engineer", "Command Secretary", "Blueshield")
+	allowed_roles = list("Facility Director", "Head of Personnel", "Chief Medical Officer", "Head of Security", "Research Director", "Chief Engineer", "Bridge Officer", "Blueshield")
 
 /datum/loadout_entry/restricted/command/eyes
 	slot = SLOT_ID_GLASSES
@@ -207,7 +207,7 @@
 //Medical + Science
 /datum/loadout_entry/restricted/med_sci
 	subcategory = "Med-Sci"
-	allowed_roles = list("Research Director", "Scientist", "Xenobiologist", "Roboticist", "Explorer", "Senior Researcher", "Pathfinder", "Medical Doctor", "Chief Medical Officer", "Chemist", "Paramedic", "Geneticist", "Psychiatrist", "Field Medic", "Head Nurse")
+	allowed_roles = list("Research Director", "Scientist", "Xenobiologist", "Roboticist", "Explorer", "Senior Researcher", "Pathfinder", "Medical Doctor", "Chief Medical Officer", "Chemist", "Paramedic", "Geneticist", "Psychiatrist", "Field Medic", "Senior Physician")
 
 /datum/loadout_entry/restricted/med_sci/head
 	slot = SLOT_ID_HEAD
@@ -478,6 +478,12 @@
 	allowed_roles = list("Security Officer", "Head of Security", "Warden", "Detective", "Talon Guard")
 	cost = 2
 
+/datum/loadout_entry/restricted/security/back/backpack
+	name = "Security - Backpack"
+	path = /obj/item/storage/backpack/security
+	allowed_roles = list("Security Officer", "Head of Security", "Warden", "Detective", "Talon Guard")
+	cost = 2
+
 //Suit
 /datum/loadout_entry/restricted/security/suit/forensics
 	name = "Detective Forensics - Red"
@@ -497,6 +503,11 @@
 /datum/loadout_entry/restricted/security/suit/forensics/long_blue
 	name = "Detective Forensics Long - Blue"
 	path = /obj/item/clothing/suit/storage/forensics/blue/long
+	allowed_roles = list("Detective")
+
+/datum/loadout_entry/restricted/security/suit/forensics/ossnecro
+	name = "OSS&NECRO Field Jacket"
+	path = /obj/item/clothing/suit/storage/toggle/necroagent
 	allowed_roles = list("Detective")
 
 /datum/loadout_entry/restricted/security/suit/wintercoat
@@ -743,6 +754,10 @@
 	name = "Medical Paramedic Jacket"
 	path = /obj/item/clothing/suit/toggle/paramed
 
+/datum/loadout_entry/restricted/medical/suit/para_ossnecro
+	name = "OSS&NECRO Field Medic jacket"
+	path = /obj/item/clothing/suit/storage/toggle/fr_jacket/ossnecro
+
 /datum/loadout_entry/restricted/medical/suit/emt_vest
 	name = "Medical EMT Vest"
 	path = /obj/item/clothing/suit/toggle/labcoat/paramedic
@@ -865,22 +880,22 @@
 /datum/loadout_entry/restricted/engineering/uniform/jeans/atmos
 	name = "Atmospheric Technicians Jumpjeans"
 	path = /obj/item/clothing/under/rank/atmospheric_technician/jeans
-	allowed_roles = list("Chief Engineer", "Atmospheric Technician")
+	allowed_roles = list("Chief Engineer", "Atmospheric Technician", "Senior Engineer")
 
 /datum/loadout_entry/restricted/engineering/uniform/fem_jeans/atmos
 	name = "Atmospheric Technicians Jumpjeans - Female"
 	path = /obj/item/clothing/under/rank/atmospheric_technician/fem_jeans
-	allowed_roles = list("Chief Engineer", "Atmospheric Technician")
+	allowed_roles = list("Chief Engineer", "Atmospheric Technician", "Senior Engineer")
 
 /datum/loadout_entry/restricted/engineering/uniform/atmos_skirt
 	name = "Atmospherics Skirt"
 	path = /obj/item/clothing/under/rank/atmospheric_technician/skirt
-	allowed_roles = list("Chief Engineer", "Atmospheric Technician")
+	allowed_roles = list("Chief Engineer", "Atmospheric Technician", "Senior Engineer")
 
 /datum/loadout_entry/restricted/engineering/uniform/atmos_pleated_skirt
 	name = "Atmospherics Pleated Skirt"
 	path = /obj/item/clothing/under/rank/atmospheric_technician/skirt_pleated
-	allowed_roles = list("Chief Engineer", "Atmospheric Technician")
+	allowed_roles = list("Chief Engineer", "Atmospheric Technician", "Senior Engineer")
 
 /datum/loadout_entry/restricted/engineering/uniform/jeans
 	name = "Engineering Jumpjeans"
@@ -897,7 +912,6 @@
 /datum/loadout_entry/restricted/engineering/uniform/eng_skirt_pleated
 	name = "Engineers Pleated Skirt"
 	path = /obj/item/clothing/under/rank/engineer/skirt_pleated
-	allowed_roles = list("Chief Engineer", "Atmospheric Techician")
 
 /datum/loadout_entry/restricted/engineering/uniform/bodysuit
 	name = "Engineering Bodysuit"
@@ -935,7 +949,7 @@
 /datum/loadout_entry/restricted/engineering/suit/wintercoat/atmos
 	name = "Atmospherics Winter Coat"
 	path = /obj/item/clothing/suit/storage/hooded/wintercoat/engineering/atmos
-	allowed_roles = list("Chief Engineer", "Atmospheric Technician")
+	allowed_roles = list("Chief Engineer", "Atmospheric Technician", "Senior Engineer")
 
 /datum/loadout_entry/restricted/engineering/suit/wintercoat/ce
 	name = "Chief Engineers Winter Coat"
@@ -979,7 +993,7 @@
 /datum/loadout_entry/restricted/engineering/shoes/winterboots/atmos
 	name = "Atmospherics Winter Boots"
 	path = /obj/item/clothing/shoes/boots/winter/atmos
-	allowed_roles = list("Chief Engineer", "Atmospheric Technician")
+	allowed_roles = list("Chief Engineer", "Atmospheric Technician", "Senior Engineer")
 
 
 
@@ -1444,6 +1458,10 @@
 /datum/loadout_entry/restricted/med_sci/suit/operations_jacket
 	name = "(Medical/Science) MedSci Operations Jacket"
 	path = /obj/item/clothing/suit/storage/toggle/operations_coat/medsci
+
+/datum/loadout_entry/restricted/med_sci/suit/labcoat/ossnecro
+	name = "OSS&NECRO Labcoat"
+	path = /obj/item/clothing/suit/storage/toggle/labcoat/ossnecro
 /***********************************************************************************************/
 //**Misc. Roles
 //*Pilot

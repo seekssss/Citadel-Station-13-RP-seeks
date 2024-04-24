@@ -509,9 +509,9 @@ var/list/wrapped_species_by_ref = list()
 
 	update_wing_showing()
 
-/mob/living/carbon/human/proc/promethean_select_opaqueness()
+/mob/living/carbon/human/proc/promethean_toggle_body_transparency()
 
-	set name = "Toggle Transparency"
+	set name = "Toggle Body Opacity" //Opacity is a shorter word than Transparency - the latter word cuts off on the verb button.
 	set category = "Abilities"
 
 	if(stat || world.time < last_special)
@@ -522,10 +522,28 @@ var/list/wrapped_species_by_ref = list()
 	for(var/limb in src.organs)
 		var/obj/item/organ/external/L = limb
 		L.transparent = !L.transparent
-	visible_message(SPAN_NOTICE("\The [src]'s interal composition seems to change."))
+	visible_message(SPAN_NOTICE("\The [src]'s internal composition seems to change."))
 	update_icons_body()
 
-/datum/species/shapeshifter/handle_environment_special(mob/living/carbon/human/H)
+/mob/living/carbon/human/proc/promethean_set_hair_transparency()
+
+	set name = "Set Hair Opacity"
+	set category = "Abilities"
+
+	if(stat || world.time < last_special)
+		return
+
+	last_special = world.time + 50
+
+	var/new_transparency = input("Pick a number between 100 and 255, 255 being no transparency.", "Change Transparency") as num|null
+	if(new_transparency)
+		new_transparency = clamp(new_transparency,100,255)
+		var/obj/item/organ/external/head/H = src.get_organ(BP_HEAD)
+		H.hair_opacity = new_transparency
+		visible_message(SPAN_NOTICE("\The [src]'s \"hair\" composition seems to change."))
+		update_hair()
+
+/datum/species/shapeshifter/handle_environment_special(mob/living/carbon/human/H, datum/gas_mixture/environment, dt)
 	// Heal remaining damage.
 	if(H.fire_stacks >= 0 && heal_rate > 0)
 		if(H.getBruteLoss() || H.getFireLoss() || H.getOxyLoss() || H.getToxLoss())

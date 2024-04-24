@@ -93,6 +93,16 @@ GLOBAL_LIST_EMPTY(damage_icon_parts)
 	M.Scale(desired_scale_x, desired_scale_y)
 	M.Translate(0, 16 * (desired_scale_y - 1))
 
+	// Mark atom as wide/long for ZM.
+	if (desired_scale_x > 1)
+		zmm_flags |= ZMM_LOOKAHEAD
+	else
+		zmm_flags &= ~ZMM_LOOKAHEAD
+	if (desired_scale_y > 1)
+		zmm_flags |= ZMM_LOOKBESIDE
+	else
+		zmm_flags &= ~ZMM_LOOKBESIDE
+
 	// handle turning
 	M.Turn(lying)
 	// extremely lazy heuristic to see if we should shift down to appear to be, well, down.
@@ -445,8 +455,7 @@ GLOBAL_LIST_EMPTY(damage_icon_parts)
 		apply_layer(HAIR_LAYER)
 		return
 
-	if(head_organ.transparent)
-		face_standing += rgb(,,,120)
+	face_standing += rgb(,,,head_organ.hair_opacity)
 
 	overlays_standing[HAIR_LAYER] = image(face_standing, layer = BODY_LAYER+HAIR_LAYER)
 	apply_layer(HAIR_LAYER)
@@ -818,7 +827,7 @@ GLOBAL_LIST_EMPTY(damage_icon_parts)
 	var/list/obj/item/relevant = get_equipped_items(TRUE, TRUE)
 	if(hud_used)
 		for(var/obj/item/I as anything in relevant)
-			position_hud_item(I, slot_by_item(I))
+			position_hud_item(I, slot_id_by_item(I))
 	if(client)
 		client.screen |= relevant
 
@@ -1043,13 +1052,6 @@ GLOBAL_LIST_EMPTY(damage_icon_parts)
 
 	apply_layer(WING_LAYER)
 
-/mob/living/carbon/human/proc/wing_spread_start()
-	if(QDESTROYING(src))
-		return
-
-	update_wing_showing("[species.get_wing(src)]_spr")
-
-
 /mob/living/carbon/human/update_modifier_visuals()
 	if(QDESTROYING(src))
 		return
@@ -1164,7 +1166,7 @@ GLOBAL_LIST_EMPTY(damage_icon_parts)
 
 	//If you have custom wings selected
 	if(wing_style && (!(wear_suit && wear_suit.inv_hide_flags & HIDETAIL) || !wing_style.clothing_can_hide))
-		var/icon/wing_s = new/icon("icon" = wing_style.icon, "icon_state" = flapping && wing_style.ani_state ? wing_style.ani_state : (wing_style.front_behind_system? (wing_style.icon_state + (front? "_FRONT" : "_BEHIND")) : wing_style.icon_state))
+		var/icon/wing_s = new/icon("icon" = wing_style.icon, "icon_state" = spread ? wing_style.spr_state : (flapping && wing_style.ani_state ? wing_style.ani_state : (wing_style.front_behind_system? (wing_style.icon_state + (front? "_FRONT" : "_BEHIND")) : wing_style.icon_state)))
 		if(wing_style.do_colouration)
 			if(grad_wingstyle)
 				grad_swing = new/icon("icon" = 'icons/mob/wing_gradients.dmi', "icon_state" = GLOB.hair_gradients[grad_wingstyle])

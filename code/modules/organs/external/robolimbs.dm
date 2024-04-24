@@ -44,7 +44,16 @@ var/const/cyberbeast_monitor_styles= "blank=cyber_blank;\
 	uwu=cyber_uwu;\
 	question=cyber_question;\
 	lowpower=cyber_lowpower;\
-	idle=cyber_idle"
+	idle=cyber_idle;\
+	catface=cyber_catface;\
+	eyes_normal=cyber_eyes_normal;\
+	eyes_happy=cyber_eyes_happy;\
+	eyes_sad=cyber_eyes_sad;\
+	eyes_big=cyber_eyes_big;\
+	confounded=cyber_confounded;\
+	eyes_confounded=cyber_eyes_confounded;\
+	halffrown=cyber_halffrown;\
+	angry=cyber_angry"
 
 /proc/populate_robolimb_list()
 	GLOB.basic_robolimb = new()
@@ -156,27 +165,38 @@ var/const/cyberbeast_monitor_styles= "blank=cyber_blank;\
 	icon = 'icons/mob/cyberlimbs/unbranded/unbranded_teshari.dmi'
 	unavailable_to_build = TRUE
 
+/datum/robolimb/unbranded_digitigrade
+	company = "Unbranded - Generic Digitigrade"
+	desc = "A digitigrade robotic leg of a fairly generic design."
+	icon = 'icons/mob/cyberlimbs/unbranded/unbranded_digitigrade.dmi'
+	parts = list(BP_L_LEG, BP_R_LEG, BP_L_FOOT, BP_R_FOOT)
+
 /datum/robolimb/nanotrasen
-	company = "NanoTrasen"
-	desc = "A simple but efficient robotic limb, created by NanoTrasen."
+	company = "Nanotrasen"
+	desc = "A simple but efficient robotic limb, created by Nanotrasen."
 	icon = 'icons/mob/cyberlimbs/nanotrasen/nanotrasen_main.dmi'
-	species_alternates = list(SPECIES_TAJ = "NanoTrasen - Tajaran", SPECIES_UNATHI = "NanoTrasen - Unathi")
+	species_alternates = list(SPECIES_TAJ = "Nanotrasen - Tajaran", SPECIES_UNATHI = "Nanotrasen - Unathi")
+
+/datum/robolimb/mpc
+	company = "Moghes Prosthetics Company"
+	desc = "A simple robotic limb with a lizard-like design."
+	icon = 'icons/mob/cyberlimbs/mpc/mpc.dmi'
 
 /datum/robolimb/nanotrasen_tajaran
-	company = "NanoTrasen - Tajaran"
+	company = "Nanotrasen - Tajaran"
 	species_cannot_use = list(SPECIES_TESHARI, SPECIES_PROMETHEAN, SPECIES_DIONA, SPECIES_HUMAN, SPECIES_VOX, SPECIES_HUMAN_VATBORN, SPECIES_UNATHI, SPECIES_SKRELL, SPECIES_ZADDAT)
-	species_alternates = list(SPECIES_HUMAN = "NanoTrasen")
+	species_alternates = list(SPECIES_HUMAN = "Nanotrasen")
 	suggested_species = SPECIES_TAJ
-	desc = "A simple but efficient robotic limb, created by NanoTrasen."
+	desc = "A simple but efficient robotic limb, created by Nanotrasen."
 	icon = 'icons/mob/cyberlimbs/nanotrasen/nanotrasen_tajaran.dmi'
 	unavailable_to_build = TRUE
 
 /datum/robolimb/nanotrasen_unathi
-	company = "NanoTrasen - Unathi"
+	company = "Nanotrasen - Unathi"
 	species_cannot_use = list(SPECIES_TESHARI, SPECIES_PROMETHEAN, SPECIES_DIONA, SPECIES_HUMAN, SPECIES_VOX, SPECIES_HUMAN_VATBORN, SPECIES_TAJ, SPECIES_SKRELL, SPECIES_ZADDAT)
-	species_alternates = list(SPECIES_HUMAN = "NanoTrasen")
+	species_alternates = list(SPECIES_HUMAN = "Nanotrasen")
 	suggested_species = SPECIES_UNATHI
-	desc = "A simple but efficient robotic limb, created by NanoTrasen."
+	desc = "A simple but efficient robotic limb, created by Nanotrasen."
 	icon = 'icons/mob/cyberlimbs/nanotrasen/nanotrasen_unathi.dmi'
 	unavailable_to_build = TRUE
 
@@ -213,7 +233,7 @@ var/const/cyberbeast_monitor_styles= "blank=cyber_blank;\
 	icon = 'icons/mob/cyberlimbs/cenilimicybernetics/cenilimicybernetics_teshari.dmi'
 	suggested_species = SPECIES_TESHARI
 	species_cannot_use = list(SPECIES_UNATHI, SPECIES_PROMETHEAN, SPECIES_DIONA, SPECIES_HUMAN, SPECIES_VOX, SPECIES_HUMAN_VATBORN, SPECIES_TAJ, SPECIES_SKRELL, SPECIES_ZADDAT)
-	species_alternates = list(SPECIES_HUMAN = "NanoTrasen")
+	species_alternates = list(SPECIES_HUMAN = "Nanotrasen")
 	unavailable_to_build = TRUE
 
 /datum/robolimb/gestaltframe
@@ -457,7 +477,6 @@ var/const/cyberbeast_monitor_styles= "blank=cyber_blank;\
 	unavailable_to_build = TRUE
 	parts = list(BP_HEAD)
 
-
 /datum/robolimb/xion_monitor
 	company = "Xion Monitor"
 	desc = "Xion Mfg.'s unique spin on a popular prosthetic head model. It looks and minimalist and utilitarian."
@@ -465,8 +484,6 @@ var/const/cyberbeast_monitor_styles= "blank=cyber_blank;\
 	unavailable_to_build = TRUE
 	parts = list(BP_HEAD)
 	monitor_styles = standard_monitor_styles
-
-
 
 /datum/robolimb/zenghu
 	company = "Zeng-Hu"
@@ -476,8 +493,6 @@ var/const/cyberbeast_monitor_styles= "blank=cyber_blank;\
 	unavailable_to_build = TRUE
 	skin_tone = TRUE
 
-
-
 /datum/robolimb/cyber_beast
 	company = "Cyber Tech"
 	desc = "Adjusted for deep space the material is durable, and heavy."
@@ -485,6 +500,10 @@ var/const/cyberbeast_monitor_styles= "blank=cyber_blank;\
 	unavailable_to_build = TRUE
 	parts = list(BP_HEAD)
 	monitor_styles = cyberbeast_monitor_styles
+
+/datum/robolimb/cyber_beast/flat
+	company = "Cyber Tech (Flat)"
+	icon = 'icons/mob/cyberlimbs/c-tech/c_beast_flat.dmi'
 
 /datum/robolimb/wooden
 	company = "Morgan Trading Co"
@@ -497,6 +516,14 @@ var/const/cyberbeast_monitor_styles= "blank=cyber_blank;\
 	company = "Replikant"
 	desc = "An advanced biomechanical prosthetic with pegs for feet."
 	icon = 'icons/mob/cyberlimbs/replikant/replikant.dmi'
+	lifelike = 1
+	modular_bodyparts = MODULAR_BODYPART_PROSTHETIC
+	parts = list(BP_L_LEG, BP_R_LEG, BP_L_FOOT, BP_R_FOOT)
+
+/datum/robolimb/replika2
+	company = "Replikant - 2nd Gen"
+	desc = "Modern, second-generation biomechanical prosthetics with pegs for feet."
+	icon = 'icons/mob/cyberlimbs/replikant/replikant2.dmi'
 	lifelike = 1
 	modular_bodyparts = MODULAR_BODYPART_PROSTHETIC
 	parts = list(BP_L_LEG, BP_R_LEG, BP_L_FOOT, BP_R_FOOT)
@@ -555,7 +582,7 @@ var/const/cyberbeast_monitor_styles= "blank=cyber_blank;\
 	catalogue_data = list(/datum/category_item/catalogue/information/organization/zeng_hu)
 
 /obj/item/disk/limb/nanotrasen
-	company = "NanoTrasen"
+	company = "Nanotrasen"
 	catalogue_data = list(/datum/category_item/catalogue/information/organization/nanotrasen)
 
 

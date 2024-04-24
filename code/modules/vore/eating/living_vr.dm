@@ -228,7 +228,7 @@
 	var/list/serialized = list()
 	for(var/belly in src.vore_organs)
 		var/obj/belly/B = belly
-		serialized += list(B.serialize()) //Can't add a list as an object to another list in Byond. Thanks.
+		serialized += list(B.serialize_vr()) //Can't add a list as an object to another list in Byond. Thanks.
 
 	P.belly_prefs = serialized
 
@@ -314,7 +314,7 @@
 //
 /mob/living/proc/lick(var/mob/living/tasted in living_mobs(1))
 	set name = "Lick"
-	set category = "IC"
+	set category = VERB_CATEGORY_IC
 	set desc = "Lick someone nearby!"
 	set popup_menu = FALSE // Stop licking by accident!
 
@@ -353,7 +353,7 @@
 // This is just the above proc but switched about.
 /mob/living/proc/smell(mob/living/smelled in living_mobs(1))
 	set name = "Smell"
-	set category = "IC"
+	set category = VERB_CATEGORY_IC
 	set desc = "Smell someone nearby!"
 	set popup_menu = FALSE
 
@@ -454,6 +454,8 @@
 // Master vore proc that actually does vore procedures
 //
 /mob/living/proc/perform_the_nom(var/mob/living/user, var/mob/living/prey, var/mob/living/pred, var/obj/belly/belly, var/delay)
+	if(!prey.devourable)
+		return
 	//Sanity
 	if(!user || !prey || !pred || !istype(belly) || !(belly in pred.vore_organs))
 		log_debug(SPAN_DEBUG("[user] attempted to feed [prey] to [pred], via [lowertext(belly.name)] but it went wrong."))
@@ -532,8 +534,8 @@
 /datum/gas_mixture/belly_air/New()
     . = ..()
     gas = list(
-        /datum/gas/oxygen = 21,
-        /datum/gas/nitrogen = 79)
+        GAS_ID_OXYGEN = 21,
+        GAS_ID_NITROGEN = 79)
 
 // Procs for micros stuffed into boots and the like to escape from them
 /mob/living/proc/escape_clothes(obj/item/clothing/C)
@@ -658,6 +660,15 @@
 			if(S.holding)
 				to_chat(src, "<span class='warning'>There's something inside!</span>")
 				return
+		if(istype(I,/obj/item/reagent_containers/hypospray/autoinjector))
+			var/obj/item/reagent_containers/hypospray/autoinjector/A = I
+			if(A.reagents && A.reagents.reagent_list.len)
+				if(istype(src,/mob/living/carbon/human)) //in case other mobs besides humans have trashcan trait
+					to_chat(src, "<span class='warning'>[A] gets injected into you as you try to consume it!</span>")
+					A.do_injection(src,src) //a rather strange way of injecting yourself, don't you think?
+				else
+					to_chat(src, "<span class='warning'>You probably shouldn't eat this.</span>")
+					return
 
 		if(!attempt_insert_item_for_installation(I, vore_selected))
 			return
@@ -707,6 +718,19 @@
 				to_chat(src, "<span class='notice'>You can taste the flavor of garbage and leftovers. Delicious?</span>")
 			else
 				to_chat(src, "<span class='notice'>You can taste the flavor of gluttonous waste of food.</span>")
+		else if(istype(I,/obj/item/material/kitchen/utensil))
+			var/obj/item/material/kitchen/utensil/U = I
+			var/S = "You can taste the flavor of "
+
+			if(istype(U,/obj/item/material/kitchen/utensil/fork))
+				S += "stabbing pains."
+			else
+				S += "the last scoop."
+			to_chat(src, "<span class='notice'>[S]</span>")
+		else if(istype(I,/obj/item/reagent_containers/hypospray/autoinjector))
+			to_chat(src, "<span class='notice'>You can taste the flavor of several tiny pricks.</span>")
+		else if(istype(I,/obj/item/skub))
+			to_chat(src, "<span class='notice'>You can taste the flavor of skub.</span>")
 		//TFF 10/7/19 - Add custom flavour for collars for trash can trait.
 		else if (istype(I,/obj/item/clothing/accessory/collar))
 			visible_message("<span class='warning'>[src] demonstrates their voracious capabilities by swallowing [I] whole!</span>")
@@ -719,7 +743,7 @@
 
 /mob/living/proc/switch_scaling()
 	set name = "Switch scaling mode"
-	set category = "Preferences"
+	set category = "OOC"
 	set desc = "Switch sharp/fuzzy scaling for current mob."
 	appearance_flags ^= PIXEL_SCALE
 
