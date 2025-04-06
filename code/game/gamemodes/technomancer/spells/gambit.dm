@@ -77,7 +77,8 @@
 		// Spiders, carp... bears.
 		if(istype(L, /mob/living/simple_mob))
 			var/mob/living/simple_mob/SM = L
-			if(!is_ally(SM) && SM.has_AI() && SM.ai_holder.hostile)
+			var/datum/ai_holder/polaris/their_holder = SM.ai_holder
+			if(!is_ally(SM) && SM.has_polaris_AI() && their_holder.hostile)
 				hostile_mobs++
 				if(SM.summoned || SM.supernatural) // Our creations might be trying to kill us.
 					potential_spells |= /obj/item/spell/abjuration
@@ -94,7 +95,7 @@
 			if(is_ally(H)) // Don't get scared by our apprentice.
 				continue
 
-			for(var/obj/item/I in list(H.l_hand, H.r_hand))
+			for(var/obj/item/I in H.get_held_items())
 				// Guns are scary.
 				if(istype(I, /obj/item/gun)) // Toy guns will count as well but oh well.
 					hostile_mobs++

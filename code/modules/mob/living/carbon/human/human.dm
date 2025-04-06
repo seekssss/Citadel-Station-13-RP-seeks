@@ -51,9 +51,12 @@
 	regenerate_icons()
 	update_transform()
 
+	//Permanent blindness due to stupidly setup vision organs
+	if(!species.vision_organ)
+		add_blindness_source(TRAIT_BLINDNESS_SPECIES)
+
 //! WARNING SHITCODE REMOVE LATER
 /mob/living/carbon/human/LateInitialize()
-	. = ..()
 	regenerate_icons()
 	update_transform()
 
@@ -104,7 +107,7 @@
 		. += species.statpanel_status(C, src, C.statpanel_tab("Species"))
 
 /mob/living/carbon/human/legacy_ex_act(severity)
-	if(!blinded)
+	if(!has_status_effect(/datum/status_effect/sight/blindness))
 		flash_eyes()
 
 	var/shielded = 0
@@ -184,8 +187,6 @@
 				)
 
 /mob/living/carbon/human/proc/implant_loyalty(override = FALSE) // Won't override by default.
-	if(!config_legacy.use_loyalty_implants && !override) return // Nuh-uh.
-
 	var/obj/item/implant/loyalty/L = new/obj/item/implant/loyalty(src)
 	if(L.handle_implant(src, BP_HEAD))
 		L.post_implant(src)
@@ -910,6 +911,18 @@
 	if(L)
 		L.rupture()
 
+/mob/living/carbon/human/proc/asbestos_lung()
+	var/obj/item/organ/internal/lungs/L = internal_organs_by_name[O_LUNGS]
+
+	if(L)
+		L.damage_lung()
+
+/mob/living/carbon/human/proc/heart_attack()
+	var/obj/item/organ/internal/heart/H = internal_organs_by_name[O_HEART]
+
+	if(H)
+		H.heart_attack()
+
 /*
 /mob/living/carbon/human/verb/simulate()
 	set name = "sim"
@@ -1126,8 +1139,8 @@
 	// i seriously hate vorecode
 	species.on_apply(src)
 
-	// set our has hands
-	has_hands = (species && species.hud)? species.hud.has_hands : TRUE
+	inventory.set_inventory_slots(species.inventory_slots)
+	inventory.set_hand_count(species.hud? (species.hud.has_hands ? 2 : 0) : 2)
 
 	// until we unfuck hud datums, this will force reload our entire hud
 	if(hud_used)
@@ -1402,18 +1415,6 @@
 		if(eyes && istype(eyes) && !(eyes.status & ORGAN_CUT_AWAY))
 			return 1
 	return 0
-
-/mob/living/carbon/human/slip(var/slipped_on, stun_duration=8)
-	var/list/equipment = list(src.w_uniform,src.wear_suit,src.shoes)
-	var/footcoverage_check = FALSE
-	for(var/obj/item/clothing/C in equipment)
-		if(C.body_cover_flags & FEET)
-			footcoverage_check = TRUE
-			break
-	if((species.species_flags & NO_SLIP && !footcoverage_check) || (shoes && (shoes.clothing_flags & NOSLIP))) //Footwear negates a species' natural traction.
-		return 0
-	if(..(slipped_on,stun_duration))
-		return 1
 
 /mob/living/carbon/human/proc/relocate()
 	set category = VERB_CATEGORY_OBJECT

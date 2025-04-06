@@ -1,4 +1,4 @@
-/datum/species/crew_shadekin
+/datum/species/shadekin/black_eyed
 	uid = SPECIES_ID_SHADEKIN_BLACK
 	id = SPECIES_ID_SHADEKIN_BLACK
 	name = SPECIES_SHADEKIN_CREW
@@ -86,6 +86,7 @@
 		O_STOMACH =		/obj/item/organ/internal/stomach,
 		O_INTESTINE =	/obj/item/organ/internal/intestine
 		)
+	vision_organ = O_EYES
 
 	has_limbs = list(
 		BP_TORSO =  list("path" = /obj/item/organ/external/chest/crewkin),

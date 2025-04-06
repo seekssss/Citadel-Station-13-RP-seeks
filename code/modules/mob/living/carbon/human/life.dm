@@ -50,7 +50,6 @@
 	//blinded get reset each cycle and then get activated later in the
 	//code. Very ugly. I dont care. Moving this stuff here so its easy
 	//to find it.
-	blinded = 0
 	fire_alert = 0 //Reset this here, because both breathe() and handle_environment() have a chance to set it.
 
 	// update the current life tick, can be used to e.g. only do something every 4 ticks
@@ -90,7 +89,6 @@
 	//No need to update all of these procs if the guy is dead.
 	if(stat != DEAD && !stasis)
 		stabilize_body_temperature(seconds) //Body temperature adjusts itself (self-regulation)
-		weightgain()
 		process_weaver_silk()
 		handle_shock()
 		handle_pain()
@@ -204,6 +202,13 @@
 
 /mob/living/carbon/human/handle_disabilities()
 	..()
+
+	if(!HAS_TRAIT_FROM(src, TRAIT_BLIND, TRAIT_BLINDNESS_SPECIES))
+		var/obj/item/organ/vis = internal_organs_by_name[species.vision_organ]
+		if(!vis)
+			add_blindness_source( TRAIT_BLINDNESS_VIS_ORGAN_MISSING)
+		else if(HAS_TRAIT_FROM(src, TRAIT_BLIND, TRAIT_BLINDNESS_VIS_ORGAN_MISSING))
+			remove_blindness_source(TRAIT_BLINDNESS_VIS_ORGAN_MISSING)
 
 	if(stat != CONSCIOUS) //Let's not worry about tourettes if you're not conscious.
 		return
@@ -627,24 +632,24 @@
 
 		if(breath.temperature >= species.breath_heat_level_1)
 			if(breath.temperature < species.breath_heat_level_2)
-				apply_damage(HEAT_GAS_DAMAGE_LEVEL_1, BURN, BP_HEAD, used_weapon = "Excessive Heat")
+				apply_damage(HEAT_GAS_DAMAGE_LEVEL_1, DAMAGE_TYPE_BURN, BP_HEAD, used_weapon = "Excessive Heat")
 				fire_alert = max(fire_alert, 2)
 			else if(breath.temperature < species.breath_heat_level_3)
-				apply_damage(HEAT_GAS_DAMAGE_LEVEL_2, BURN, BP_HEAD, used_weapon = "Excessive Heat")
+				apply_damage(HEAT_GAS_DAMAGE_LEVEL_2, DAMAGE_TYPE_BURN, BP_HEAD, used_weapon = "Excessive Heat")
 				fire_alert = max(fire_alert, 2)
 			else
-				apply_damage(HEAT_GAS_DAMAGE_LEVEL_3, BURN, BP_HEAD, used_weapon = "Excessive Heat")
+				apply_damage(HEAT_GAS_DAMAGE_LEVEL_3, DAMAGE_TYPE_BURN, BP_HEAD, used_weapon = "Excessive Heat")
 				fire_alert = max(fire_alert, 2)
 
 		else if(breath.temperature <= species.breath_cold_level_1)
 			if(breath.temperature > species.breath_cold_level_2)
-				apply_damage(COLD_GAS_DAMAGE_LEVEL_1, BURN, BP_HEAD, used_weapon = "Excessive Cold")
+				apply_damage(COLD_GAS_DAMAGE_LEVEL_1, DAMAGE_TYPE_BURN, BP_HEAD, used_weapon = "Excessive Cold")
 				fire_alert = max(fire_alert, 1)
 			else if(breath.temperature > species.breath_cold_level_3)
-				apply_damage(COLD_GAS_DAMAGE_LEVEL_2, BURN, BP_HEAD, used_weapon = "Excessive Cold")
+				apply_damage(COLD_GAS_DAMAGE_LEVEL_2, DAMAGE_TYPE_BURN, BP_HEAD, used_weapon = "Excessive Cold")
 				fire_alert = max(fire_alert, 1)
 			else
-				apply_damage(COLD_GAS_DAMAGE_LEVEL_3, BURN, BP_HEAD, used_weapon = "Excessive Cold")
+				apply_damage(COLD_GAS_DAMAGE_LEVEL_3, DAMAGE_TYPE_BURN, BP_HEAD, used_weapon = "Excessive Cold")
 				fire_alert = max(fire_alert, 1)
 
 
@@ -742,7 +747,7 @@
 	// we simulate in space, or in somewhere with a gasmixture. otherwise, we don't care.
 	if(istype(loc, /turf/space))
 		// in space, we use blackbody radiation
-		var/heat_loss = HUMAN_EXPOSED_SURFACE_AREA * STEFAN_BOLTZMANN_CONSTANT * ((bodytemperature - COSMIC_RADIATION_TEMPERATURE)**4)
+		var/heat_loss = THERMODYNAMICS_HUMAN_EXPOSED_SURFACE_AREA * STEFAN_BOLTZMANN_CONSTANT * ((bodytemperature - COSMIC_RADIATION_TEMPERATURE)**4)
 		var/temperature_loss = heat_loss/HUMAN_HEAT_CAPACITY
 		adjust_bodytemperature(-temperature_loss)
 	else if(!isnull(environment))
@@ -1042,10 +1047,10 @@
 					if(check_belly(I))
 						continue
 					if(src.species && !(src.species.species_flags & CONTAMINATION_IMMUNE))
-						// This is hacky, I'm so sorry.
-						if(I != l_hand && I != r_hand)	//If the item isn't in your hands, you're probably wearing it. Full damage for you.
+						if(isnull(I.held_index))
+							//If the item isn't in your hands, you're probably wearing it. Full damage for you.
 							total_phoronloss += loss_per_part
-						else if((I == l_hand | I == r_hand) && !((src.wear_suit?.body_cover_flags & HANDS) | src.gloves | (src.w_uniform?.body_cover_flags & HANDS)))	//If the item is in your hands, but you're wearing protection, you might be alright.
+						else if(!((src.wear_suit.body_cover_flags & HANDS) | src.gloves | (src.w_uniform.body_cover_flags & HANDS)))	//If the item is in your hands, but you're wearing protection, you might be alright.
 							//If you hold it in hand, and your hands arent covered by anything
 							total_phoronloss += loss_per_part
 			if(total_phoronloss)
@@ -1113,19 +1118,19 @@
 
 	//SSD check, if a logged player is awake put them back to sleep!
 	if(stat == DEAD)	//DEAD. BROWN BREAD. SWIMMING WITH THE SPESS CARP
-		blinded = 1
+		apply_status_effect(/datum/status_effect/sight/blindness, 5 SECOND)//This modifier does not expire as long as the holder is dead
 		silent = 0
 	else				//ALIVE. LIGHTS ARE ON
 		update_health()	//TODO
 
-		if(health <= config_legacy.health_threshold_dead || (should_have_organ("brain") && !has_brain()))
+		if(health <= getMinHealth() || (should_have_organ("brain") && !has_brain()))
 			death()
-			blinded = 1
+			apply_status_effect(/datum/status_effect/sight/blindness, 5 SECOND)
 			silent = 0
 			return 1
 
 		//UNCONSCIOUS. NO-ONE IS HOME
-		if((getOxyLoss() > (species.total_health/2)) || (health <= config_legacy.health_threshold_crit))
+		if((getOxyLoss() > (species.total_health/2)) || (health <= getCritHealth()))
 			afflict_unconscious(20 * 3)
 
 		if(hallucination)
@@ -1135,7 +1140,7 @@
 				if(!handling_hal)
 					spawn handle_hallucinations() //The not boring kind!
 
-			hallucination = max(0, hallucination - 2)
+			adjustHallucination(-2)
 		else
 			for(var/atom/a in hallucinations)
 				qdel(a)
@@ -1155,9 +1160,10 @@
 			setHalLoss(species.total_health - 1)
 
 		if(!IS_CONSCIOUS(src))
-			blinded = 1
+			apply_status_effect(/datum/status_effect/sight/blindness, 5 SECOND)
 			animate_tail_reset()
 			adjustHalLoss(-3)
+			adjustHallucination(-3)
 
 		if(is_sleeping())
 			handle_dreams()
@@ -1178,7 +1184,7 @@
 			var/obj/item/hardsuit/O = back
 			if(O.helmet && O.helmet == head && (O.helmet.body_cover_flags & EYES))
 				if((!O.is_online() && O.offline_vision_restriction == 2) || (O.is_online() && O.vision_restriction == 2))
-					blinded = 1
+					apply_status_effect(/datum/status_effect/sight/blindness, O.seal_delay)
 
 		// Check everything else.
 
@@ -1186,34 +1192,13 @@
 		if(embedded_flag && !(life_tick % 10))
 			if(!embedded_needs_process())
 				embedded_flag = 0
-		//Vision
-		var/obj/item/organ/vision
+
 		if(species.vision_organ)
-			vision = internal_organs_by_name[species.vision_organ]
-
-		if(!species.vision_organ) // Presumably if a species has no vision organs, they see via some other means.
-			SetBlinded(0)
-			blinded =    0
-			eye_blurry = 0
-		else if(!vision || vision.is_broken())   // Vision organs cut out or broken? Permablind.
-			SetBlinded(1)
-			blinded =    1
-			eye_blurry = 1
-		else //You have the requisite organs
-			if(sdisabilities & SDISABILITY_NERVOUS) 	// Disabled-blind, doesn't get better on its own
-				blinded =    1
-			else if(eye_blind)		  	// Blindness, heals slowly over time
-				AdjustBlinded(-1)
-				blinded =    1
-			else if(istype(glasses, /obj/item/clothing/glasses/sunglasses/blindfold))	//resting your eyes with a blindfold heals blurry eyes faster
-				eye_blurry = max(eye_blurry-3, 0)
-				blinded =    1
-
-			//blurry sight
-			if(vision.is_bruised())   // Vision organs impaired? Permablurry.
+			var/obj/item/organ/vision = internal_organs_by_name[species.vision_organ]
+			if(vision && vision.is_bruised())   // Vision organs impaired? Permablurry.
 				eye_blurry = 1
-			if(eye_blurry)	           // Blurry eyes heal slowly
-				eye_blurry = max(eye_blurry-1, 0)
+		if(eye_blurry)	           // Blurry eyes heal slowly
+			eye_blurry = max(eye_blurry-1, 0)
 
 		//Ears
 		if(sdisabilities & SDISABILITY_DEAF)	//disabled-deaf, doesn't get better on its own
@@ -1484,11 +1469,6 @@
 						bodytemp.icon_state = "temp-1"
 					else
 						bodytemp.icon_state = "temp0"
-		if(blinded)
-			overlay_fullscreen("blind", /atom/movable/screen/fullscreen/scaled/blind)
-
-		else
-			clear_fullscreen("blind")
 
 		if(disabilities & DISABILITY_NEARSIGHTED)	//this looks meh but saves a lot of memory by not requiring to add var/prescription
 			var/corrected = FALSE
@@ -1616,6 +1596,13 @@
 			if(!isRemoteObserve && remoteview_target)
 				remoteview_target = null
 				reset_perspective()
+
+		//! shitcode ahead
+		if(get_z(src))
+			if(SSmapping.level_trait(get_z(src), ZTRAIT_BLOCK_LEGACY_WALLHACKS))
+				RemoveSightSelf(SEE_OBJS | SEE_MOBS | SEE_TURFS)
+		//! end
+
 	return 1
 
 /mob/living/carbon/human/proc/process_glasses(var/obj/item/clothing/glasses/G)
@@ -1709,12 +1696,12 @@
 	if(!can_feel_pain())
 		return
 
-	if(health < config_legacy.health_threshold_softcrit)// health 0 makes you immediately collapse
+	if(health < getSoftCritHealth())// health 0 makes you immediately collapse
 		shock_stage = max(shock_stage, 61)
 
 	if(traumatic_shock >= 80)
 		shock_stage += 1
-	else if(health < config_legacy.health_threshold_softcrit)
+	else if(health < getSoftCritHealth())
 		shock_stage = max(shock_stage, 61)
 	else
 		shock_stage = min(shock_stage, 160)
@@ -1880,14 +1867,6 @@
 		return
 	else
 		bodytemperature += (BODYTEMP_HEATING_MAX + (fire_stacks * 15)) * (1-thermal_protection)
-
-/mob/living/carbon/human/proc/weightgain()
-	if (nutrition >= 0 && stat != 2)
-		if (nutrition > MIN_NUTRITION_TO_GAIN && weight < MAX_MOB_WEIGHT && weight_gain)
-			weight += species.metabolism*(0.01*weight_gain)
-
-		else if (nutrition <= MAX_NUTRITION_TO_LOSE && stat != 2 && weight > MIN_MOB_WEIGHT && weight_loss)
-			weight -= species.metabolism*(0.01*weight_loss) // starvation weight loss
 
 //Our call for the NIF to do whatever
 /mob/living/carbon/human/proc/handle_nif()

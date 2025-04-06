@@ -11,13 +11,13 @@
 	heavy = TRUE
 	slot_flags = SLOT_BACK
 	origin_tech = list(TECH_COMBAT = 8, TECH_MATERIAL = 2, TECH_ILLEGAL = 8)
-	caliber = "12.7mm"
+	caliber = /datum/ammo_caliber/a12_7mm
 	recoil = 5 //extra kickback
 	handle_casings = HOLD_CASINGS
 	load_method = SINGLE_CASING
 	max_shells = 1
-	ammo_type = /obj/item/ammo_casing/a127
-	projectile_type = /obj/projectile/bullet/rifle/a127
+	ammo_type = /obj/item/ammo_casing/a12_7mm
+	projectile_type = /obj/projectile/bullet/rifle/a12_7mm
 	load_sound = 'sound/weapons/guns/interaction/rifle_load.ogg'
 	accuracy = -45
 	scoped_accuracy = 95
@@ -30,7 +30,7 @@
 	else
 		icon_state = "heavysniper"
 
-/obj/item/gun/ballistic/heavysniper/attack_self(mob/user)
+/obj/item/gun/ballistic/heavysniper/attack_self(mob/user, datum/event_args/actor/actor)
 	. = ..()
 	if(.)
 		return
@@ -86,7 +86,7 @@
 	damage_force = 10
 	slot_flags = SLOT_BACK // Needs a sprite.
 	origin_tech = list(TECH_COMBAT = 8, TECH_MATERIAL = 2, TECH_ILLEGAL = 8)
-	caliber = "7.62mm"
+	caliber = /datum/ammo_caliber/a7_62mm
 	load_method = MAGAZINE
 	accuracy = -45 //shooting at the hip
 	scoped_accuracy = 95
@@ -94,8 +94,8 @@
 //	requires_two_hands = 1
 	one_handed_penalty = 60 // The weapon itself is heavy, and the long barrel makes it hard to hold steady with just one hand.
 	fire_sound = 'sound/weapons/Gunshot_SVD.ogg' // Has a very unique sound.
-	magazine_type = /obj/item/ammo_magazine/m762svd
-	allowed_magazines = list(/obj/item/ammo_magazine/m762svd)
+	magazine_type = /obj/item/ammo_magazine/a7_62mm/svd
+	allowed_magazines = list(/obj/item/ammo_magazine/a7_62mm/svd)
 
 /obj/item/gun/ballistic/SVD/update_icon_state()
 	. = ..()
@@ -110,18 +110,3 @@
 	set popup_menu = 1
 
 	toggle_scope(2.0)
-
-/obj/item/gun/ballistic/SVD/taj
-	name = "Adhomai sniper rifle"
-	desc = "The Hotaki Marksman rifle, in stark contrast to the usual products of Hotak's arms, is an elegant and precise rifle that has taken the lives of many high value targets in the name of defending the Democratic People's Republic of Adhomai."
-	icon_state = "svd-taj"
-	item_state = "svd-taj"
-	wielded_item_state = "svd-taj-wielded"
-
-
-/obj/item/gun/ballistic/SVD/taj/update_icon_state()
-	. = ..()
-	if(ammo_magazine)
-		icon_state = "SVD-taj"
-	else
-		icon_state = "SVD-taj-empty"

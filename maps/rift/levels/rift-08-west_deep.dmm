@@ -131,7 +131,7 @@
 /turf/simulated/floor,
 /area/outpost/mining_main/outpost/airlock/three)
 "bc" = (
-/turf/unsimulated/mineral,
+/turf/unsimulated/wall/mineral,
 /area/rift/surfacebase/outside/west_deep)
 "bf" = (
 /turf/simulated/floor/tiled/steel_dirty/lythios43c/indoors,
@@ -801,7 +801,7 @@
 /turf/simulated/floor/tiled,
 /area/outpost/mining_main/refinery)
 "il" = (
-/turf/simulated/floor/sky/depths/west/lythios43c,
+/turf/simulated/sky/depths/west/lythios43c,
 /area/rift/surfacebase/outside/west_deep)
 "iq" = (
 /obj/effect/floor_decal/corner/white{
@@ -839,7 +839,7 @@
 /area/rift/facility/interior/underground2)
 "iI" = (
 /obj/structure/railing,
-/turf/simulated/floor/sky/depths/west/lythios43c,
+/turf/simulated/sky/depths/west/lythios43c,
 /area/rift/surfacebase/outside/west_deep)
 "iJ" = (
 /obj/structure/stairs/spawner/east,
@@ -993,8 +993,9 @@
 	},
 /obj/machinery/door/airlock/maintenance/rnd{
 	name = "Science Outpost Maintenance";
-	req_one_access = list(10,47)
+	req_one_access = null
 	},
+/obj/map_helper/access_helper/airlock/station/science/maintenance,
 /turf/simulated/floor/plating,
 /area/rnd/outpost/maintenance)
 "jL" = (
@@ -1458,7 +1459,6 @@
 /turf/simulated/floor/wood,
 /area/outpost/mining_main/outpost/recreation)
 "nb" = (
-/obj/machinery/door/airlock/maintenance/rnd,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
 	dir = 1
 	},
@@ -1467,6 +1467,10 @@
 	},
 /obj/structure/cable/green{
 	icon_state = "1-2"
+	},
+/obj/map_helper/access_helper/airlock/station/science/department,
+/obj/machinery/door/airlock/maintenance/rnd{
+	req_one_access = null
 	},
 /turf/simulated/floor/plating,
 /area/gateway/prep_room)
@@ -1824,7 +1828,7 @@
 /area/outpost/mining_main/outpost/recreation)
 "pT" = (
 /obj/effect/blocker,
-/turf/simulated/floor/sky/depths/west/lythios43c,
+/turf/simulated/sky/depths/west/lythios43c,
 /area/rift/surfacebase/outside/west_deep)
 "pU" = (
 /obj/structure/railing{
@@ -2097,7 +2101,7 @@
 /turf/simulated/floor/plating,
 /area/outpost/mining_main/outpost/maintenance/south)
 "sN" = (
-/turf/unsimulated/wall/planetary/lythios43c{
+/turf/unsimulated/wall/planetary/permafrost{
 	desc = "Glacial permafrost, compacted harder than stone.";
 	icon_state = "icerock-dark";
 	name = "glacier wall"
@@ -2502,7 +2506,7 @@
 /turf/simulated/floor/tiled/monotile,
 /area/rnd/outpost/underground)
 "wV" = (
-/turf/unsimulated/mineral/lythios43c,
+/turf/unsimulated/wall/mineral/lythios43c,
 /area/rift/surfacebase/outside/west_deep)
 "wW" = (
 /obj/spawner/window/reinforced/full,
@@ -3028,8 +3032,9 @@
 	pressure_resistance = 750;
 	target_pressure = 750
 	},
+/obj/map_helper/access_helper/airlock/station/supply/maintenance,
 /obj/machinery/door/airlock/maintenance/engi{
-	req_one_access = list(10,48)
+	req_one_access = null
 	},
 /turf/simulated/floor/plating,
 /area/outpost/mining_main/outpost/maintenance/north)
@@ -3808,7 +3813,7 @@
 	icon_state = "1-2"
 	},
 /obj/machinery/door/airlock/maintenance/engi{
-	req_one_access = list(10,48)
+	req_one_access = null
 	},
 /turf/simulated/floor/plating,
 /area/outpost/mining_main/outpost/substation)
@@ -4241,8 +4246,7 @@
 "Mp" = (
 /obj/machinery/door/airlock/multi_tile/glass{
 	dir = 4;
-	name = "Material Processing";
-	req_one_access = list(48)
+	name = "Material Processing"
 	},
 /obj/structure/cable/green{
 	icon_state = "4-8"
@@ -4250,6 +4254,7 @@
 /obj/machinery/door/firedoor{
 	dir = 8
 	},
+/obj/map_helper/access_helper/airlock/station/supply/department,
 /turf/simulated/floor/tiled/monotile,
 /area/outpost/mining_main/refinery)
 "MD" = (
@@ -4371,6 +4376,7 @@
 /obj/structure/cable/green{
 	icon_state = "1-2"
 	},
+/obj/map_helper/access_helper/airlock/station/supply/mining,
 /turf/simulated/floor/tiled/techfloor,
 /area/quartermaster/belterdock)
 "NV" = (
@@ -5021,8 +5027,9 @@
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /obj/machinery/door/airlock/maintenance/rnd{
 	name = "Science Outpost Maintenance";
-	req_one_access = list(10,47)
+	req_one_access = null
 	},
+/obj/map_helper/access_helper/airlock/station/science/maintenance,
 /turf/simulated/floor/plating,
 /area/rnd/outpost/maintenance)
 "UZ" = (

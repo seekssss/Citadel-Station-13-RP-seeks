@@ -15,7 +15,7 @@
 
 // todo: review data procs
 
-/datum/reagent/nutriment/mix_data(datum/reagents/holder, list/current_data, current_amount, list/new_data, new_amount)
+/datum/reagent/nutriment/mix_data(datum/reagent_holder/holder, list/current_data, current_amount, list/new_data, new_amount)
 
 	if(!islist(new_data) || !length(new_data))
 		return
@@ -45,7 +45,6 @@
 	affect_ingest(M, alien, removed)
 
 /datum/reagent/nutriment/affect_ingest(mob/living/carbon/M, alien, removed)
-	var/hyd_removed
 	switch(alien)
 		if(IS_DIONA)
 			return
@@ -58,7 +57,7 @@
 	M.heal_organ_damage(0.5 * removed, 0)
 	if(!M.species.is_vampire) // If this is set to 0, they don't get nutrition from food.
 		M.nutrition += nutriment_factor * removed // For hunger and fatness
-	M.adjust_hydration(hydration_factor * hyd_removed)
+	M.adjust_hydration(hydration_factor * removed)
 	M.add_chemical_effect(CE_BLOODRESTORE, 4 * removed)
 
 /datum/reagent/nutriment/glucose
@@ -615,7 +614,7 @@
 	else if(eyes_covered)
 		to_chat(M, "<span class='warning'>Your [safe_thing] protects you from most of the pepperspray!</span>")
 		M.eye_blurry = max(M.eye_blurry, effective_strength * 3)
-		M.Blind(effective_strength)
+		M.apply_status_effect(/datum/status_effect/sight/blindness, effective_strength )
 		M.afflict_stun(20 * 5)
 		M.afflict_paralyze(20 * 5)
 		if(alien != IS_SLIME)
@@ -628,7 +627,7 @@
 	else// Oh dear :D
 		to_chat(M, "<span class='warning'>You're sprayed directly in the eyes with pepperspray!</span>")
 		M.eye_blurry = max(M.eye_blurry, effective_strength * 5)
-		M.Blind(effective_strength * 2)
+		M.apply_status_effect(/datum/status_effect/sight/blindness, effective_strength * 2 )
 		M.afflict_stun(20 * 5)
 		M.afflict_paralyze(20 * 5)
 		if(alien != IS_SLIME)
@@ -1245,7 +1244,7 @@
 	taste_description = "tropical, somewhat buttery water"
 	color = "#fafafa70"
 	nutrition=1
-	
+
 	glass_name = "Coconut Water"
 	glass_desc = "A fresh clear liquid found within coconuts."
 
@@ -4585,7 +4584,7 @@
 
 //Handles setting the temperature when oils are mixed
 // todo: review data procs
-/datum/reagent/nutriment/coating/mix_data(datum/reagents/holder, list/current_data, current_amount, list/new_data, new_amount)
+/datum/reagent/nutriment/coating/mix_data(datum/reagent_holder/holder, list/current_data, current_amount, list/new_data, new_amount)
 	LAZYINITLIST(data)
 	data["cooked"] = new_data["cooked"]
 
@@ -4650,7 +4649,7 @@
 		data = list("temperature" = T20C)
 
 //Handles setting the temperature when oils are mixed
-/datum/reagent/nutriment/triglyceride/oil/mix_data(datum/reagents/holder, list/current_data, current_amount, list/new_data, new_amount)
+/datum/reagent/nutriment/triglyceride/oil/mix_data(datum/reagent_holder/holder, list/current_data, current_amount, list/new_data, new_amount)
 	LAZYINITLIST(data)
 	if (current_amount <= 0 || !data["temperature"] || !volume)
 		//If we get here, then this reagent has just been created, just copy the temperature exactly
@@ -4831,7 +4830,7 @@
 /datum/reagent/ethanol/monstertamer/affect_ingest(mob/living/carbon/M, alien, removed)
 	..()
 
-	monster_tamer(M,alien, removed, alt_nutriment_factor)	
+	monster_tamer(M,alien, removed, alt_nutriment_factor)
 
 /datum/reagent/ethanol/monstertamer/affect_blood(mob/living/carbon/M, alien, removed)
 	..()

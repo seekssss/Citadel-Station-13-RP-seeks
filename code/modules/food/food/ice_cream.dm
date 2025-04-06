@@ -14,7 +14,7 @@
 	atom_flags = NOREACT
 
 	/// already bit into? no double dipping!
-	var/can_keep_scooping = FALSE
+	var/can_keep_scooping = TRUE
 	/// overall sugar-ation; continuously compounded to be the % of scoops with sugar
 	var/snowflake_deliciousness = 0
 	/// max scoops
@@ -65,8 +65,8 @@
 		var/datum/reagent/from_reagent = SSchemistry.fetch_reagent(reagent_source)
 		color = from_reagent.color
 		reagents.add_reagent(from_reagent.id, reagent_amount)
-	else if(istype(reagent_source, /datum/reagents))
-		var/datum/reagents/from_holder = reagent_source
+	else if(istype(reagent_source, /datum/reagent_holder))
+		var/datum/reagent_holder/from_holder = reagent_source
 		color = from_holder.get_color()
 		from_holder.transfer_to_holder(reagents, amount = reagent_amount)
 
@@ -187,8 +187,7 @@ ICE_CREAM_PATHS(/datum/reagent/drink/juice/apple, apple)
 	melt_more()
 
 /obj/effect/debris/cleanable/ice_cream/proc/start_reaction()
-	atom_flags &= ~NOREACT
-	reagents?.handle_reactions()
+	reagents.set_no_react(FALSE)
 
 /obj/effect/debris/cleanable/ice_cream/proc/melt_more()
 	cut_overlays()
@@ -202,6 +201,7 @@ ICE_CREAM_PATHS(/datum/reagent/drink/juice/apple, apple)
 	middle.appearance_flags = KEEP_APART | RESET_COLOR
 	add_overlay(middle)
 
+	// todo: this doesn't work; we need melting dollop states..
 	if(length(dollops_left_colors))
 		color = BlendRGB(color || "#ffffff", dollops_left_colors[1], 0.5)
 		dollops_left_colors.Cut(1, 2)

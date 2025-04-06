@@ -42,6 +42,8 @@
 
 	vision_innate = /datum/vision/baseline/species_tier_3
 
+	vision_organ = O_EYES
+
 	//Adapted to overcast skies and caverns.
 	flash_mod = 3.0
 
@@ -64,6 +66,3 @@
 		/mob/living/carbon/human/proc/hide_wings,
 		/mob/living/carbon/human/proc/hide_tail
 		)
-
-/datum/species/scori/equip_survival_gear()
-	return

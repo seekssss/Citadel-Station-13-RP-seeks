@@ -177,7 +177,6 @@
 	return INITIALIZE_HINT_LATELOAD
 
 /obj/machinery/body_scanconsole/LateInitialize()
-	. = ..()
 	findscanner()
 
 /obj/machinery/body_scanconsole/Destroy()
@@ -240,7 +239,7 @@
 	. = ..()
 	return attack_hand(user)
 
-/obj/machinery/body_scanconsole/attack_hand(mob/user, list/params)
+/obj/machinery/body_scanconsole/attack_hand(mob/user, datum/event_args/actor/clickchain/e_args)
 	if(machine_stat & (NOPOWER|BROKEN))
 		return
 
@@ -386,7 +385,7 @@
 
 			occupantData["intOrgan"] = intOrganData
 
-			occupantData["blind"] = (H.sdisabilities & SDISABILITY_NERVOUS)
+			occupantData["blind"] = (HAS_TRAIT(H, TRAIT_BLIND))
 			occupantData["nearsighted"] = (H.disabilities & DISABILITY_NEARSIGHTED)
 			occupantData = attempt_vr(scanner,"get_occupant_data_vr",list(occupantData,H))
 		data["occupant"] = occupantData
@@ -597,8 +596,8 @@
 				dat += "<td>[i.name]</td><td>N/A</td><td>[i.damage]</td><td>[infection]:[mech][i_dead]</td><td></td>"
 				dat += "</tr>"
 			dat += "</table>"
-			if(occupant.sdisabilities & SDISABILITY_NERVOUS)
-				dat += "<font color='red'>Cataracts detected.</font><BR>"
+			if(HAS_TRAIT(occupant, TRAIT_BLIND))
+				dat += "<font color='red'>Severe impairment of the eyes or visual nerves detected.</font><BR>"
 			if(occupant.disabilities & DISABILITY_NEARSIGHTED)
 				dat += "<font color='red'>Retinal misalignment detected.</font><BR>"
 		else
@@ -631,6 +630,7 @@
 	return incoming
 
 /obj/machinery/bodyscanner/update_icon()
+	. = ..()
 	if(machine_stat & (NOPOWER|BROKEN))
 		icon_state = "scanner_off"
 		set_light(0)
@@ -658,6 +658,7 @@
 			console.update_icon(h_ratio)
 
 /obj/machinery/body_scanconsole/update_icon(var/h_ratio)
+	. = ..()
 	if(machine_stat & (NOPOWER|BROKEN))
 		icon_state = "scanner_terminal_off"
 		set_light(0)

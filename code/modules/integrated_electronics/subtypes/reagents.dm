@@ -140,7 +140,7 @@
 		return
 
 	if(direction_mode == SYRINGE_INJECT)
-		if(!reagents.total_volume || !AM.can_be_injected_by(src) || AM.reagents.holder_full())
+		if(!reagents.total_volume || (!AM.can_be_injected_by(src) && !isliving(AM)) || AM.reagents.holder_full())
 			activate_pin(3)
 			return
 		if(isliving(AM))
@@ -160,7 +160,7 @@
 			L.visible_message("<span class='danger'>[acting_object] is trying to inject [L]!</span>", \
 								"<span class='userdanger'>[acting_object] is trying to inject you!</span>")
 			busy = TRUE
-			if(do_atom(src, L, extra_checks=CALLBACK(L, TYPE_PROC_REF(/mob/living, can_inject),null,0,BP_TORSO,bypass)))
+			if(do_atom(src, L, extra_checks=CALLBACK(L, TYPE_PROC_REF(/mob/living, can_inject),null,0,BP_TORSO,bypass),uninterruptible = bypass))
 				reagents.trans_to_mob(L, transfer_amount)
 				log_attack(src, L, "attempted to inject [L] which had [contained]")
 				L.visible_message("<span class='danger'>[acting_object] injects [L] with its needle!</span>", \
@@ -194,7 +194,7 @@
 			L.visible_message("<span class='danger'>[acting_object] is trying to take a blood sample from [L]!</span>", \
 								"<span class='userdanger'>[acting_object] is trying to take a blood sample from you!</span>")
 			busy = TRUE
-			if(do_atom(src, L, extra_checks=CALLBACK(L, TYPE_PROC_REF(/mob/living, can_inject),null,0,BP_TORSO,bypass)))
+			if(do_atom(src, L, extra_checks=CALLBACK(L, TYPE_PROC_REF(/mob/living, can_inject),null,0,BP_TORSO,bypass),uninterruptible = bypass))
 				var/mob/living/carbon/LB = L
 				var/datum/reagent/B
 				B = LB.take_blood(src, tramount)
@@ -202,7 +202,7 @@
 					reagents.reagent_list += B
 					reagents.update_total()
 					AM.on_reagent_change()
-					reagents.handle_reactions()
+					reagents.reconsider_reactions()
 					L.visible_message("<span class='danger'>[acting_object] takes a blood sample from [L]!</span>", \
 					"<span class='userdanger'>[acting_object] takes a blood sample from you!</span>")
 				else
@@ -311,14 +311,17 @@
 
 	var/obj/item/reagent_containers/glass/beaker/current_beaker
 
-/obj/item/integrated_circuit/input/beaker_connector/ask_for_input(obj/item/I, mob/living/user, a_intent)
-	if(!isobj(I))
-		return FALSE
-	attackby_react(I, user, a_intent)
+/obj/item/integrated_circuit/input/beaker_connector/ask_for_input(mob/living/user, obj/item/I,  a_intent)
+	if(!current_beaker)
+		if(!isobj(I))
+			return FALSE
+		attackby_react(I, user, a_intent)
+	else
+		attack_self(user)
 
 /obj/item/integrated_circuit/input/beaker_connector/attackby_react(var/obj/item/reagent_containers/I, var/mob/living/user)
 	//Check if it truly is a reagent container
-	if(!istype(I,/obj/item/reagent_containers/glass/beaker))
+	if(!(istype(I,/obj/item/reagent_containers/glass/beaker) || istype(I,/obj/item/reagent_containers/glass/hypovial)))
 		to_chat(user,"<span class='warning'>The [I.name] doesn't seem to fit in here.</span>")
 		return
 
@@ -342,12 +345,7 @@
 	activate_pin(1)
 	activate_pin(3)
 
-
-/obj/item/integrated_circuit/input/beaker_connector/ask_for_input(mob/user)
-	attack_self(user)
-
-
-/obj/item/integrated_circuit/input/beaker_connector/attack_self(mob/user)
+/obj/item/integrated_circuit/input/beaker_connector/attack_self(mob/user, datum/event_args/actor/actor)
 	. = ..()
 	if(.)
 		return
@@ -476,7 +474,7 @@
 	complexity = 4
 	power_draw_per_use = 5
 
-/obj/item/integrated_circuit/reagent/funnel/proc/ask_for_input(obj/item/I, mob/living/user, a_intent)
+/obj/item/integrated_circuit/reagent/funnel/proc/ask_for_input(mob/living/user, obj/item/I, a_intent)
 	if(!isobj(I))
 		return FALSE
 	attackby_react(I, user, a_intent)
@@ -613,10 +611,20 @@
 	how much reagent is moved per pulse, between 0 and 50.  Amount is given for each separate reagent."
 	atom_flags = OPENCONTAINER
 	complexity = 8
-	inputs = list("source" = IC_PINTYPE_REF, "target" = IC_PINTYPE_REF, "injection amount" = IC_PINTYPE_NUMBER, "list of reagents" = IC_PINTYPE_LIST)
-	inputs_default = list("3" = 5)
+	inputs = list(
+		"source" = IC_PINTYPE_REF,
+		"target" = IC_PINTYPE_REF,
+		"injection amount" = IC_PINTYPE_NUMBER,
+		"list of reagents" = IC_PINTYPE_LIST
+		)
+	inputs_default = list(
+		"3" = 5
+		)
 	outputs = list()
-	activators = list("transfer reagents" = IC_PINTYPE_PULSE_IN, "on transfer" = IC_PINTYPE_PULSE_OUT)
+	activators = list(
+		"transfer reagents" = IC_PINTYPE_PULSE_IN,
+		"on transfer" = IC_PINTYPE_PULSE_OUT
+		)
 	spawn_flags = IC_SPAWN_DEFAULT|IC_SPAWN_RESEARCH
 	origin_tech = list(TECH_ENGINEERING = 2, TECH_DATA = 2, TECH_BIO = 2)
 	var/transfer_amount = 10
@@ -638,27 +646,25 @@
 	var/atom/movable/source = get_pin_data_as_type(IC_INPUT, 1, /atom/movable)
 	var/atom/movable/target = get_pin_data_as_type(IC_INPUT, 2, /atom/movable)
 	var/list/demand = get_pin_data(IC_INPUT, 4)
-	if(!istype(source) || !istype(target)) //Invalid input
+	// Check for invalid input.
+	if(!check_target(source) || !check_target(target))
 		return
-	var/turf/T = get_turf(src)
-	if(source.Adjacent(T) && target.Adjacent(T))
-		if(!source.reagents || !target.reagents)
-			return
-		if(ismob(source) || ismob(target))
-			return
-		if(!source.is_open_container() || !target.is_open_container())
-			return
-		if(!target.reagents.available_volume())
-			return
-		for(var/datum/reagent/G in source.reagents.reagent_list)
-			if (!direc)
-				if(G.id in demand)
-					source.reagents.trans_id_to(target, G.id, transfer_amount)
-			else
-				if(!(G.id in demand))
-					source.reagents.trans_id_to(target, G.id, transfer_amount)
-		activate_pin(2)
-		push_data()
+	if(!source.reagents || !target.reagents)
+		return
+	// FALSE in those procs makes mobs invalid targets.
+	if(!source.is_open_container(FALSE) || istype(source, /mob))
+		return
+	if(target.reagents.maximum_volume - target.reagents.total_volume <= 0)
+		return
+	for(var/datum/reagent/G in source.reagents?.reagent_list)
+		if (!direc)
+			if(G.id in demand)
+				source.reagents.trans_id_to(target, G.id, transfer_amount)
+		else
+			if(!(G.id in demand))
+				source.reagents.trans_id_to(target, G.id, transfer_amount)
+	activate_pin(2)
+	push_data()
 
 /obj/item/integrated_circuit/reagent/extinguisher
 	name = "integrated extinguisher"
@@ -714,3 +720,30 @@
 	activate_pin(2)
 
 
+/obj/item/integrated_circuit/reagent/purger
+	name = "reagent purger"
+	desc = "A safe way to dispose of unwanted fluids."
+	icon_state = "smoke"
+	extended_desc = "The purger clears its storage when pulsed."
+	atom_flags = OPENCONTAINER
+	volume = 60
+	complexity = 4
+	cooldown_per_use = 1
+	inputs = list()
+	outputs = list(
+		"volume used" = IC_PINTYPE_NUMBER,
+		"self reference" = IC_PINTYPE_SELFREF
+		)
+	activators = list(
+		"purge" = IC_PINTYPE_PULSE_IN,
+		"on purged" = IC_PINTYPE_PULSE_OUT
+		)
+	spawn_flags = IC_SPAWN_RESEARCH
+	power_draw_per_use = 2
+
+/obj/item/integrated_circuit/reagent/purger/on_reagent_change()
+	push_vol()
+
+/obj/item/integrated_circuit/reagent/purger/do_work()
+	reagents.clear_reagents()
+	activate_pin(2)

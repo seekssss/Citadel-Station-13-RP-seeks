@@ -21,6 +21,7 @@
 	max_additional_languages = 5
 
 	vision_innate = /datum/vision/baseline/species_tier_3
+	vision_organ = O_EYES
 	slowdown      = -0.2  //scuttly, but not as scuttly as a tajara or a teshari.
 	brute_mod     = 0.8   //About as tanky to brute as a Unathi. They'll probably snap and go feral when hurt though.
 	burn_mod      = 1.15  //As vulnerable to burn as a Tajara.
@@ -77,8 +78,11 @@
 		O_BRAIN =    /obj/item/organ/internal/brain/xenochimera,
 		O_EYES =     /obj/item/organ/internal/eyes/xenochimera,
 		O_STOMACH =		/obj/item/organ/internal/stomach/xenochimera,
-		O_INTESTINE =	/obj/item/organ/internal/intestine/xenochimera
+		O_INTESTINE =	/obj/item/organ/internal/intestine/xenochimera,
+		O_WEAVER = 		/obj/item/organ/internal/weaver/weak/xenochimera
 		)
+
+
 
 	unarmed_types = list(
 		/datum/unarmed_attack/stomp,
@@ -126,6 +130,11 @@
 		/mob/living/carbon/human/proc/shapeshifter_select_ears,
 		/mob/living/carbon/human/proc/shapeshifter_select_horns,
 		/mob/living/carbon/human/proc/shapeshifter_select_shape,
+		/mob/living/carbon/human/proc/check_silk_amount,
+		/mob/living/carbon/human/proc/toggle_silk_production,
+		/mob/living/carbon/human/proc/weave_structure,
+		/mob/living/carbon/human/proc/weave_item,
+		/mob/living/carbon/human/proc/set_silk_color,
 	)
 
 	var/has_feral_abilities = FALSE
@@ -385,7 +394,7 @@
 				target.species.breath_type = GAS_ID_CARBON_DIOXIDE
 				target.species.exhale_type = GAS_ID_OXYGEN
 		if(target == src)
-			to_chat("<span class = 'Notice'>It is done.</span>")
+			to_chat(src, "<span class = 'Notice'>It is done.</span>")
 		else
 			if(prob(10))
 				var/datum/disease2/disease/virus2 = new /datum/disease2/disease
@@ -517,7 +526,7 @@
 		to_chat(src,"<span class = 'Notice'>We cannot change a being of metal!</span>")
 		return
 	if(target == src)
-		to_chat("<span class = 'Notice'>We begin modifying our skin...</span>")
+		to_chat(src, "<span class = 'Notice'>We begin modifying our skin...</span>")
 	else
 		target.visible_message("<span class = 'danger'>[src] has fleshy tendrils emerge and begin to merge and mold with [target]!</span>", "<span class = 'warning'>You feel an extremely uncomfortable slithering sensation going through your skin, it begins to feel foreign and dead, emanating from them...</span>")
 	if(do_after(src,15 SECONDS))
@@ -631,8 +640,7 @@
 	H.adjustOxyLoss(-healing_amount)
 	H.adjustCloneLoss(-healing_amount)
 	H.adjustBrainLoss(-healing_amount)
-	H.blinded = FALSE
-	H.SetBlinded(FALSE)
+	H.remove_status_effect(/datum/status_effect/sight/blindness)
 	H.eye_blurry = FALSE
 	H.ear_deaf = FALSE
 	H.ear_damage = FALSE

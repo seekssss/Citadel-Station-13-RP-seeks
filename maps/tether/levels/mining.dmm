@@ -4,7 +4,7 @@
 /turf/simulated/floor/tiled/steel_dirty/virgo3b,
 /area/mine/explored)
 "aS" = (
-/turf/simulated/mineral/virgo3b,
+/turf/simulated/mineral,
 /area/mine/explored)
 "bh" = (
 /obj/structure/cable{
@@ -32,12 +32,6 @@
 	},
 /turf/simulated/floor/plating,
 /area/outpost/mining_main/secondary_gear_storage)
-"bE" = (
-/obj/machinery/door/firedoor/glass{
-	dir = 4
-	},
-/turf/simulated/floor/plating,
-/area/outpost/mining_main/maintenance)
 "cx" = (
 /obj/structure/cable/green{
 	icon_state = "1-2"
@@ -239,7 +233,6 @@
 /obj/machinery/atmospherics/pipe/simple/visible/red{
 	dir = 9
 	},
-/obj/machinery/door/firedoor/glass,
 /turf/simulated/floor/plating,
 /area/outpost/mining_main/maintenance)
 "hf" = (
@@ -373,13 +366,16 @@
 /turf/simulated/floor/tiled,
 /area/outpost/mining_main/break_room)
 "il" = (
-/obj/machinery/door/airlock/glass/mining,
+/obj/machinery/door/airlock/glass/mining{
+	req_one_access = null
+	},
 /obj/structure/cable/green{
 	icon_state = "1-2"
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /obj/machinery/door/firedoor/glass,
+/obj/map_helper/access_helper/airlock/station/supply/maintenance,
 /turf/simulated/floor/tiled/steel_grid,
 /area/outpost/mining_main/secondary_gear_storage)
 "iP" = (
@@ -895,7 +891,8 @@
 /area/outpost/mining_main/break_room)
 "xq" = (
 /obj/machinery/door/airlock/mining{
-	name = "Quarters"
+	name = "Quarters";
+	req_one_access = null
 	},
 /obj/structure/cable/green{
 	icon_state = "4-8"
@@ -909,6 +906,7 @@
 /obj/machinery/door/firedoor/glass{
 	dir = 4
 	},
+/obj/map_helper/access_helper/airlock/station/supply/mining,
 /turf/simulated/floor/wood,
 /area/outpost/mining_main/dorms)
 "xs" = (
@@ -1018,8 +1016,10 @@
 	frequency = 1379;
 	icon_state = "door_locked";
 	id_tag = "mining_outpost_airlock_outer";
-	locked = 1
+	locked = 1;
+	req_one_access = null
 	},
+/obj/map_helper/access_helper/airlock/station/external_airlock,
 /turf/simulated/floor/tiled/steel_grid,
 /area/outpost/mining_main/airlock)
 "zi" = (
@@ -1288,7 +1288,7 @@
 /turf/simulated/floor/plating,
 /area/outpost/mining_main/maintenance)
 "Hq" = (
-/turf/simulated/mineral/virgo3b,
+/turf/simulated/mineral,
 /area/mine/unexplored)
 "Hs" = (
 /obj/structure/reagent_dispensers/water_cooler/full,
@@ -1538,11 +1538,13 @@
 	frequency = 1379;
 	icon_state = "door_locked";
 	id_tag = "mining_outpost_airlock_inner";
-	locked = 1
+	locked = 1;
+	req_one_access = null
 	},
 /obj/machinery/door/firedoor/glass{
 	dir = 4
 	},
+/obj/map_helper/access_helper/airlock/station/external_airlock,
 /turf/simulated/floor/tiled/steel_grid,
 /area/outpost/mining_main/break_room)
 "Qe" = (
@@ -1592,7 +1594,7 @@
 /turf/simulated/wall/r_wall,
 /area/mine/explored)
 "Se" = (
-/turf/unsimulated/mineral/virgo3b,
+/turf/unsimulated/wall/mineral,
 /area/mine/explored)
 "Sm" = (
 /obj/structure/cable/green{
@@ -1738,8 +1740,10 @@
 	dir = 4
 	},
 /obj/machinery/door/airlock/mining{
-	name = "Utility Room"
+	name = "Utility Room";
+	req_one_access = null
 	},
+/obj/map_helper/access_helper/airlock/station/supply/mining,
 /turf/simulated/floor/tiled,
 /area/outpost/mining_main/maintenance)
 "UI" = (
@@ -1809,7 +1813,7 @@
 /turf/simulated/floor/tiled,
 /area/outpost/mining_main/break_room)
 "VY" = (
-/turf/unsimulated/wall/planetary/virgo3b,
+/turf/unsimulated/wall/planetary/facility_wall,
 /area/mine/explored)
 "Wb" = (
 /obj/machinery/atmospherics/pipe/manifold/visible/cyan{
@@ -1873,13 +1877,16 @@
 /turf/simulated/floor/tiled/steel_dirty/virgo3b,
 /area/mine/explored)
 "XJ" = (
-/obj/machinery/door/airlock/glass/mining,
+/obj/machinery/door/airlock/glass/mining{
+	req_one_access = null
+	},
 /obj/structure/cable/green{
 	icon_state = "1-2"
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
 /obj/machinery/door/firedoor/glass,
+/obj/map_helper/access_helper/airlock/station/supply/mining,
 /turf/simulated/floor/tiled/steel_grid,
 /area/outpost/mining_main/hangar)
 "XP" = (
@@ -14362,7 +14369,7 @@ FZ
 SQ
 XP
 RG
-bE
+Cg
 Tb
 sH
 Mr

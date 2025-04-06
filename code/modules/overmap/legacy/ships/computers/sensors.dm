@@ -6,6 +6,7 @@
 	circuit = /obj/item/circuitboard/sensors
 	extra_view = 4
 	var/obj/machinery/shipsensors/sensors
+	var/stored_points
 
 // fancy sprite
 /obj/machinery/computer/ship/sensors/adv
@@ -23,7 +24,6 @@
 	return INITIALIZE_HINT_LATELOAD
 
 /obj/machinery/computer/ship/sensors/planet/LateInitialize()
-	. = ..()
 	var/area/overmap/map = locate() in world
 	for(var/obj/overmap/entity/visitable/sector/S in map)
 		if(istype(S,planet_type))
@@ -66,6 +66,7 @@
 	data["critical_heat"] = 0
 	data["status"] = "MISSING"
 	data["contacts"] = list()
+	data["points"] = 0
 
 	if(sensors)
 		data["on"] = sensors.use_power
@@ -93,6 +94,7 @@
 				bearing += 360
 			contacts.Add(list(list("name"=O.name, "ref"="\ref[O]", "bearing"=bearing)))
 		data["contacts"] = contacts
+		data["points"] = stored_points
 
 	return data
 
@@ -216,9 +218,9 @@
 	else if(health < max_health * 0.75)
 		. += "It shows signs of damage!"
 
-/obj/machinery/shipsensors/bullet_act(var/obj/projectile/Proj)
-	take_damage_legacy(Proj.get_structure_damage())
-	..()
+/obj/machinery/shipsensors/on_bullet_act(obj/projectile/proj, impact_flags, list/bullet_act_args)
+	. = ..()
+	take_damage_legacy(proj.get_structure_damage())
 
 /obj/machinery/shipsensors/proc/toggle()
 	if(!use_power && (health == 0 || !in_vacuum()))

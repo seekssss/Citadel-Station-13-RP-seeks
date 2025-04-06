@@ -93,7 +93,7 @@ GLOBAL_REAL_VAR(airlock_typecache) = typecacheof(list(
 	var/stripe_color = null
 	var/symbol_color = null
 	var/window_color = GLASS_COLOR
-	var/window_material = /datum/material/glass
+	var/window_material = /datum/prototype/material/glass
 
 	var/fill_file = 'icons/obj/doors/station/fill_steel.dmi'
 	var/color_file = 'icons/obj/doors/station/color.dmi'
@@ -139,13 +139,14 @@ GLOBAL_REAL_VAR(airlock_typecache) = typecacheof(list(
 			color_overlay.Blend(door_color, ICON_MULTIPLY)
 			GLOB.airlock_icon_cache["[ikey]"] = color_overlay
 
-	if(door_color && !(door_color == "none"))
+	if((door_color && !(door_color == "none")) || (window_color && !(window_color == "none")))
 		var/ikey = "[airlock_type]-[door_color]-fillcolor-[glass]"
 		filling_overlay = GLOB.airlock_icon_cache["[ikey]"]
 		if(!filling_overlay)
 			filling_overlay = new(fill_file)
 			if(!glass || tinted)
-				filling_overlay.Blend(door_color, ICON_MULTIPLY)
+				if(door_color)
+					filling_overlay.Blend(door_color, ICON_MULTIPLY)
 			else
 				filling_overlay.Blend(window_color, ICON_MULTIPLY)
 			GLOB.airlock_icon_cache["[ikey]"] = filling_overlay
@@ -335,7 +336,7 @@ About the new airlock wires panel:
 
 
 /obj/machinery/door/airlock/bumpopen(mob/living/user as mob) //Airlocks now zap you when you 'bump' them open when they're electrified. --NeoFite
-	if(!issilicon(usr))
+	if(!issilicon(usr) && isturf(user.loc)) // isturf so simulated sealed vehicle bumps don't do it
 		if(src.isElectrified())
 			if(!src.justzap)
 				if(src.shock(user, 100))
@@ -498,8 +499,9 @@ About the new airlock wires panel:
 		return 0
 
 
-/obj/machinery/door/airlock/update_icon(var/doorstate)
-	switch(doorstate)
+/obj/machinery/door/airlock/update_icon()
+	. = ..()
+	switch(state)
 		if(AIRLOCK_OPEN)
 			icon_state = "open"
 		if(AIRLOCK_CLOSED)
@@ -512,28 +514,43 @@ About the new airlock wires panel:
 /obj/machinery/door/airlock/custom_smooth()
 	return //we only custom smooth because we don't need to do anything else.
 
+// todo: Rework everything, fucks sakes
 /obj/machinery/door/airlock/do_animate(animation)
 	switch(animation)
 		if(DOOR_ANIMATION_OPEN)
 			set_airlock_overlays(AIRLOCK_OPENING)
 			flick("opening", src)//[stat ? "_stat":]
-			update_icon(AIRLOCK_OPEN)
+			state = AIRLOCK_OPENING
+			update_icon()
 		if(DOOR_ANIMATION_CLOSE)
 			set_airlock_overlays(AIRLOCK_CLOSING)
 			flick("closing", src)
-			update_icon(AIRLOCK_CLOSED)
+			state = AIRLOCK_CLOSING
+			update_icon()
 		if(DOOR_ANIMATION_DENY)
 			set_airlock_overlays(AIRLOCK_DENY)
 			if(density && arePowerSystemsOn())
 				flick("deny", src)
 				if(speaker)
 					playsound(loc, denied_sound, 50, 0)
-			update_icon(AIRLOCK_CLOSED)
+			var/old_state = state
+			state = AIRLOCK_DENY
+			update_icon()
+			state = old_state
+			spawn(3)
+				update_icon()
 		if(DOOR_ANIMATION_EMAG)
 			set_airlock_overlays(AIRLOCK_EMAG)
 			if(density && arePowerSystemsOn())
 				flick("deny", src)
+			var/old_state = state
+			state = AIRLOCK_EMAG
+			update_icon()
+			state = old_state
+			spawn(3)
+				update_icon()
 		else
+			state = AIRLOCK_EMAG
 			update_icon()
 
 /obj/machinery/door/airlock/attack_ai(mob/user as mob)
@@ -645,7 +662,7 @@ About the new airlock wires panel:
 					last_spark = world.time
 	return ..()
 
-/obj/machinery/door/airlock/attack_hand(mob/user, list/params)
+/obj/machinery/door/airlock/attack_hand(mob/user, datum/event_args/actor/clickchain/e_args)
 	if(!istype(usr, /mob/living/silicon))
 		if(src.isElectrified())
 			if(src.shock(user, 100))
@@ -765,9 +782,13 @@ About the new airlock wires panel:
 		open()
 
 /obj/machinery/door/airlock/proc/can_remove_electronics()
+	if(is_integrity_broken())
+		return TRUE
 	return src.panel_open && (operating < 0 || (!operating && welded && !src.arePowerSystemsOn() && density && (!src.locked || (machine_stat & BROKEN))))
 
 /obj/machinery/door/airlock/attackby(obj/item/C, mob/user as mob)
+	if(user.a_intent == INTENT_HARM)
+		return ..()
 	//TO_WORLD("airlock attackby src [src] obj [C] mob [user]")
 	if(!istype(usr, /mob/living/silicon))
 		if(src.isElectrified())
@@ -865,7 +886,7 @@ About the new airlock wires panel:
 		lock()
 	. = ..()
 	for (var/mob/O in viewers(src, null))
-		if ((O.client && !( O.blinded )))
+		if ((O.client && !( O.has_status_effect(/datum/status_effect/sight/blindness) )))
 			O.show_message("[src.name]'s control panel bursts open, sparks spewing out!")
 
 	var/datum/effect_system/spark_spread/s = new /datum/effect_system/spark_spread
@@ -885,7 +906,11 @@ About the new airlock wires panel:
 
 	if(src.closeOther != null && istype(src.closeOther, /obj/machinery/door/airlock/) && !src.closeOther.density)
 		src.closeOther.close()
-	return ..()
+	. = ..()
+	if(!.)
+		return
+	state = AIRLOCK_OPEN
+	update_icon()
 
 /obj/machinery/door/airlock/close(var/forced=0)
 	if(!can_close(forced))
@@ -904,7 +929,7 @@ About the new airlock wires panel:
 	for(var/turf/turf in locs)
 		for(var/atom/movable/AM in turf)
 			if(AM.airlock_crush(DOOR_CRUSH_DAMAGE))
-				inflict_atom_damage(DOOR_CRUSH_DAMAGE, flag = ARMOR_MELEE)
+				inflict_atom_damage(DOOR_CRUSH_DAMAGE, damage_flag = ARMOR_MELEE)
 
 	use_power(360)	//360 W seems much more appropriate for an actuator moving an industrial door capable of crushing people
 	has_beeped = 0
@@ -916,7 +941,11 @@ About the new airlock wires panel:
 		var/obj/structure/window/killthis = (locate(/obj/structure/window) in turf)
 		if(killthis)
 			LEGACY_EX_ACT(killthis, 2, null)//Smashin windows
-	return ..()
+	. = ..()
+	if(!.)
+		return
+	state = AIRLOCK_CLOSED
+	update_icon()
 
 /obj/machinery/door/airlock/set_opacity_on_close()
 	if(visible)
@@ -1215,3 +1244,10 @@ About the new airlock wires panel:
 
 /obj/machinery/door/airlock/glass_external/public
 	req_one_access = list()
+
+/obj/machinery/door/airlock/hatch/supermatter_access
+	name = "Supermatter Access"
+	desc = "A reinforced hatch designed to withstand severe environmental hazards."
+	icon_state = "door_locked"
+	locked = TRUE
+	heat_resistance = 120000

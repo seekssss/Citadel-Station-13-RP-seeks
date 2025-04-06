@@ -1,7 +1,12 @@
+TYPE_REGISTER_SPATIAL_GRID(/mob/living, SSspatial_grids.living)
 /mob/living/Initialize(mapload)
 	. = ..()
+	// make radiation sensitive
 	AddComponent(/datum/component/radiation_listener)
 	AddElement(/datum/element/z_radiation_listener)
+
+	if(ai_holder_type && !ai_holder)
+		ai_holder = new ai_holder_type(src)
 
 	selected_image = image(icon = 'icons/mob/screen1.dmi', loc = src, icon_state = "centermarker")
 
@@ -298,6 +303,18 @@ default behaviour is:
 	if(status_flags & STATUS_GODMODE)	return 0	//godmode
 	halloss = amount
 
+/mob/living/proc/adjustHallucination(amount)
+	if(status_flags & STATUS_GODMODE)
+		hallucination = 0
+		return 0	//godmode
+	hallucination = clamp(hallucination + amount, 0, 400) //cap at 400, any higher is just obnoxious
+
+/mob/living/proc/setHallucination(amount)
+	if(status_flags & STATUS_GODMODE)
+		hallucination = 0
+		return 0	//godmode
+	hallucination = clamp(amount, 0, 400) //cap at 400, any higher is just obnoxious
+
 // Use this to get a mob's max health whenever possible.  Reading maxHealth directly will give inaccurate results if any modifiers exist.
 /mob/living/proc/getMaxHealth()
 	var/result = maxHealth
@@ -314,6 +331,15 @@ default behaviour is:
 	health = (health/maxHealth) * (newMaxHealth) // Adjust existing health
 	maxHealth = newMaxHealth
 
+// Use this to get a mob's min health whenever possible. (modifiers for minHealth don't exist currently!)
+/mob/living/proc/getMinHealth()
+	return minHealth
+
+/mob/living/proc/getCritHealth()
+	return critHealth
+
+/mob/living/proc/getSoftCritHealth()
+	return softCritHealth
 
 /mob/living/Confuse(amount)
 	for(var/datum/modifier/M in modifiers)
@@ -322,19 +348,6 @@ default behaviour is:
 	..(amount)
 
 /mob/living/AdjustConfused(amount)
-	if(amount > 0)
-		for(var/datum/modifier/M in modifiers)
-			if(!isnull(M.disable_duration_percent))
-				amount = round(amount * M.disable_duration_percent)
-	..(amount)
-
-/mob/living/Blind(amount)
-	for(var/datum/modifier/M in modifiers)
-		if(!isnull(M.disable_duration_percent))
-			amount = round(amount * M.disable_duration_percent)
-	..(amount)
-
-/mob/living/AdjustBlinded(amount)
 	if(amount > 0)
 		for(var/datum/modifier/M in modifiers)
 			if(!isnull(M.disable_duration_percent))
@@ -432,7 +445,7 @@ default behaviour is:
 
 //called when the mob receives a bright flash
 /mob/living/flash_eyes(intensity = FLASH_PROTECTION_MODERATE, override_blindness_check = FALSE, affect_silicon = FALSE, visual = FALSE, type = /atom/movable/screen/fullscreen/tiled/flash)
-	if(override_blindness_check || !(disabilities & SDISABILITY_NERVOUS))
+	if(override_blindness_check || has_status_effect(/datum/status_effect/sight/blindness))
 		overlay_fullscreen("flash", type)
 		spawn(25)
 			if(src)
@@ -457,9 +470,6 @@ default behaviour is:
 			return TRUE
 
 	return FALSE
-
-/mob/living/proc/slip(var/slipped_on,stun_duration=8)
-	return 0
 
 //damage/heal the mob ears and adjust the deaf amount
 /mob/living/adjustEarDamage(var/damage, var/deaf)
@@ -582,19 +592,21 @@ default behaviour is:
 		if(!isnull(M.icon_scale_y_percent))
 			. *= M.icon_scale_y_percent
 
-/mob/living/update_transform()
-	var/matrix/old_matrix = transform
-	// First, get the correct size.
+/mob/living/base_transform(matrix/applying)
+	SHOULD_CALL_PARENT(FALSE)
+
 	var/desired_scale_x = size_multiplier * icon_scale_x
 	var/desired_scale_y = size_multiplier * icon_scale_y
 
-	// Now for the regular stuff.
-	var/matrix/M = matrix()
-	M.Scale(desired_scale_x, desired_scale_y)
-	M.Translate(0, 16*(desired_scale_y-1))
+	applying.Scale(desired_scale_x, desired_scale_y)
+	applying.Translate(0, 16 * (desired_scale_y - 1))
+
+	SEND_SIGNAL(src, COMSIG_MOVABLE_BASE_TRANSFORM, applying)
+	return applying
+
+/mob/living/apply_transform(matrix/to_apply)
+	animate(src, transform = to_apply, time = 1 SECONDS, flags = ANIMATION_LINEAR_TRANSFORM | ANIMATION_PARALLEL)
 	update_ssd_overlay()
-	animate(src, transform = M, time = 10)
-	SEND_SIGNAL(src, COMSIG_MOB_UPDATE_TRANSFORM, old_matrix, M)
 
 // This handles setting the client's color variable, which makes everything look a specific color.
 // This proc is here so it can be called without needing to check if the client exists, or if the client relogs.
@@ -635,49 +647,6 @@ default behaviour is:
 	else // No colors, so remove the client's color.
 		animate(client, color = null, time = 10)
 
-/mob/living/swap_hand()
-	src.hand = !( src.hand )
-	if(hud_used.l_hand_hud_object && hud_used.r_hand_hud_object)
-		if(hand)	//This being 1 means the left hand is in use
-			hud_used.l_hand_hud_object.icon_state = "l_hand_active"
-			hud_used.r_hand_hud_object.icon_state = "r_hand_inactive"
-		else
-			hud_used.l_hand_hud_object.icon_state = "l_hand_inactive"
-			hud_used.r_hand_hud_object.icon_state = "r_hand_active"
-
-	// We just swapped hands, so the thing in our inactive hand will notice it's not the focus
-	var/obj/item/I = get_inactive_held_item()
-	if(I)
-		if(I.zoom)
-			I.zoom()
-	return
-
-/mob/proc/activate_hand(selhand)
-
-/mob/living/activate_hand(selhand) //0 or "r" or "right" for right hand; 1 or "l" or "left" for left hand.
-
-	if(istext(selhand))
-		selhand = lowertext(selhand)
-
-		if(selhand == "right" || selhand == "r")
-			selhand = 0
-		if(selhand == "left" || selhand == "l")
-			selhand = 1
-
-	if(selhand != src.hand)
-		swap_hand()
-
-// todo: multihands
-
-/mob/proc/activate_hand_of_index(index)
-
-/mob/living/activate_hand_of_index(index)
-	switch(index)
-		if(1)
-			activate_hand("l")
-		if(2)
-			activate_hand("r")
-
 /mob/living/get_sound_env(var/pressure_factor)
 	if (hallucination)
 		return PSYCHOTIC
@@ -693,7 +662,7 @@ default behaviour is:
 		return ..()
 
 /mob/living/proc/has_vision()
-	return !(eye_blind || (disabilities & SDISABILITY_NERVOUS) || stat || blinded)
+	return !(has_status_effect(/datum/status_effect/sight/blindness))
 
 /mob/living/proc/dirties_floor()	// If we ever decide to add fancy conditionals for making dirty floors (floating, etc), here's the proc.
 	return makes_dirt

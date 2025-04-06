@@ -28,6 +28,8 @@
 ///////////////////////////////////////////////////////////////
 
 /datum/surgery_step/robotics/unscrew_hatch
+	step_name = "Unscrew hatch"
+
 	allowed_tools = list(
 		/obj/item/coin = 50,
 		/obj/item/material/knife = 50
@@ -67,6 +69,8 @@
 ///////////////////////////////////////////////////////////////
 
 /datum/surgery_step/robotics/open_hatch
+	step_name = "Open hatch"
+
 	allowed_tools = list(
 		/obj/item/surgical/retractor = 100,
 		/obj/item/surgical/retractor_primitive = 75,
@@ -105,6 +109,8 @@
 ///////////////////////////////////////////////////////////////
 
 /datum/surgery_step/robotics/close_hatch
+	step_name = "Close hatch"
+
 	allowed_tools = list(
 		/obj/item/surgical/retractor = 100,
 		/obj/item/surgical/retractor_primitive = 75,
@@ -144,6 +150,8 @@
 ///////////////////////////////////////////////////////////////
 
 /datum/surgery_step/robotics/repair_brute
+	step_name = "Fix structure"
+
 	allowed_tools = list(
 		/obj/item/weldingtool = 100,
 		/obj/item/pickaxe/plasmacutter = 50
@@ -178,13 +186,15 @@
 	var/obj/item/organ/external/affected = target.get_organ(target_zone)
 	user.visible_message("<span class='warning'>[user]'s [tool.name] slips, damaging the internal structure of [target]'s [affected.name].</span>",
 	"<span class='warning'>Your [tool.name] slips, damaging the internal structure of [target]'s [affected.name].</span>")
-	target.apply_damage(rand(5,10), BURN, affected)
+	target.apply_damage(rand(5,10), DAMAGE_TYPE_BURN, affected)
 
 ///////////////////////////////////////////////////////////////
 // Burn Repair Surgery
 ///////////////////////////////////////////////////////////////
 
 /datum/surgery_step/robotics/repair_burn
+	step_name = "Fix wiring"
+
 	allowed_tools = list(
 		/obj/item/stack/cable_coil = 100
 	)
@@ -226,13 +236,15 @@
 	var/obj/item/organ/external/affected = target.get_organ(target_zone)
 	user.visible_message("<span class='warning'>[user] causes a short circuit in [target]'s [affected.name]!</span>",
 	"<span class='warning'>You cause a short circuit in [target]'s [affected.name]!</span>")
-	target.apply_damage(rand(5,10), BURN, affected)
+	target.apply_damage(rand(5,10), DAMAGE_TYPE_BURN, affected)
 
 ///////////////////////////////////////////////////////////////
 // Robot Organ Surgery
 ///////////////////////////////////////////////////////////////
 
 /datum/surgery_step/robotics/fix_organ_robotic //For artificial organs
+	step_name = "Repair systems"
+
 	allowed_tools = list(
 	/obj/item/stack/nanopaste = 100,		\
 	/obj/item/surgical/bonegel = 30, 		\
@@ -280,8 +292,6 @@
 				user.visible_message("<span class='notice'>[user] repairs [target]'s [I.name] with [tool].</span>", \
 				"<span class='notice'>You repair [target]'s [I.name] with [tool].</span>" )
 				I.revive(TRUE)
-				if(I.organ_tag == O_EYES)
-					target.sdisabilities &= ~SDISABILITY_NERVOUS
 
 /datum/surgery_step/robotics/fix_organ_robotic/fail_step(mob/living/user, mob/living/carbon/human/target, target_zone, obj/item/tool)
 	if (!hasorgans(target))
@@ -292,7 +302,7 @@
 	"<span class='warning'>Your hand slips, gumming up the mechanisms inside of [target]'s [affected.name] with \the [tool]!</span>")
 
 	target.adjustToxLoss(5)
-	affected.create_wound(CUT, 5)
+	affected.create_wound(WOUND_TYPE_CUT, 5)
 
 	for(var/obj/item/organ/internal/I in affected.internal_organs)
 		if(I)
@@ -303,6 +313,7 @@
 ///////////////////////////////////////////////////////////////
 
 /datum/surgery_step/robotics/detatch_organ_robotic
+	step_name = "Decouple system"
 
 	allowed_tools = list(
 	/obj/item/multitool = 100
@@ -356,6 +367,7 @@
 ///////////////////////////////////////////////////////////////
 
 /datum/surgery_step/robotics/attach_organ_robotic
+	step_name = "Install system"
 
 	allowed_tools = list(
 	/obj/item/surgical/FixOVein = 100
@@ -408,6 +420,8 @@
 ///////////////////////////////////////////////////////////////
 
 /datum/surgery_step/robotics/install_mmi
+	step_name = "Install MMI"
+
 	allowed_tools = list(
 	/obj/item/mmi = 100
 	)
@@ -486,6 +500,8 @@
  */
 
 /datum/surgery_step/robotics/install_nymph
+	step_name = "Install Nymph"
+
 	allowed_tools = list(
 		/obj/item/holder/diona = 100
 	)

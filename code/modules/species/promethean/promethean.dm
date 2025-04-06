@@ -95,6 +95,7 @@ var/datum/species/shapeshifter/promethean/prometheans
 		O_REGOXY   = /obj/item/organ/internal/regennetwork/oxy,
 		O_REGTOX   = /obj/item/organ/internal/regennetwork/tox,
 	)
+	vision_organ = O_BRAIN //THey only really have the brain as neural point
 
 	dispersed_eyes = TRUE
 
@@ -152,7 +153,9 @@ var/datum/species/shapeshifter/promethean/prometheans
 	..()
 	prometheans = src
 
-/datum/species/shapeshifter/promethean/equip_survival_gear(mob/living/carbon/human/H)
+/datum/species/shapeshifter/promethean/apply_survival_gear(mob/living/carbon/for_target, list/into_box, list/into_inv)
+	. = ..()
+
 	var/boxtype = pick(list(
 		/obj/item/storage/toolbox/lunchbox,
 		/obj/item/storage/toolbox/lunchbox/heart,
@@ -164,13 +167,9 @@ var/datum/species/shapeshifter/promethean/prometheans
 		/obj/item/storage/toolbox/lunchbox/syndicate
 	))	//Only pick the empty types
 
-	var/obj/item/storage/toolbox/lunchbox/L = new boxtype(get_turf(H))
+	var/obj/item/storage/toolbox/lunchbox/L = new boxtype
 	new /obj/item/reagent_containers/food/snacks/wrapped/proteinbar(L)
-	new /obj/item/tool/prybar/red(L)
-	if(H.backbag == 1)
-		H.equip_to_slot_or_del(L, /datum/inventory_slot/abstract/hand/right)
-	else
-		H.equip_to_slot_or_del(L, /datum/inventory_slot/abstract/put_in_backpack)
+	into_inv += L
 
 /datum/species/shapeshifter/promethean/hug(mob/living/carbon/human/H, mob/living/target)
 

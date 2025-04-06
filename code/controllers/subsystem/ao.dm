@@ -1,6 +1,6 @@
 SUBSYSTEM_DEF(ao)
 	name = "Ambient Occlusion"
-	init_order = INIT_ORDER_MISC_LATE
+	init_order = INIT_ORDER_AMBIENT_OCCLUSION
 	wait = 1
 	runlevels = RUNLEVELS_DEFAULT | RUNLEVEL_LOBBY
 
@@ -13,7 +13,7 @@ SUBSYSTEM_DEF(ao)
 
 /datum/controller/subsystem/ao/Initialize(start_timeofday)
 	fire(FALSE, TRUE)
-	..()
+	return SS_INIT_SUCCESS
 
 /datum/controller/subsystem/ao/fire(resumed = 0, no_mc_tick = FALSE)
 	if (!resumed)

@@ -1,7 +1,7 @@
 #define RESTART_COUNTER_PATH "data/round_counter.txt"
 
 GLOBAL_VAR(restart_counter)
-
+GLOBAL_VAR_INIT(hub_visibility, TRUE)
 GLOBAL_VAR(topic_status_lastcache)
 GLOBAL_LIST(topic_status_cache)
 
@@ -10,11 +10,18 @@ GLOBAL_LIST(topic_status_cache)
 	turf = /turf/space/basic
 	area = /area/space
 	view = "15x15"
-	hub = "Exadv1.spacestation13"
-	hub_password = "kMZy3U5jJHSiBQjr"
 	name = "Citadel Station 13 - Roleplay"
 	status = "ERROR: Default status"
+	/// world visibility. this should never, ever be touched.
+	/// a weird byond bug yet to be resolved is probably making this
+	/// permanently delist the server if this is disabled at any point.
 	visibility = TRUE
+	/// static value, do not change
+	hub = "Exadv1.spacestation13"
+	/// static value, do not change, except to toggle visibility
+	/// * use this instead of `visibility` to toggle, via `update_hub_visibility`
+	hub_password = "kMZy3U5jJHSiBQjr"
+	movement_mode = PIXEL_MOVEMENT_MODE
 	fps = 20
 #ifdef FIND_REF_NO_CHECK_TICK
 	loop_checks = FALSE
@@ -74,24 +81,15 @@ GLOBAL_LIST(topic_status_cache)
 	SSdbcore.SetRoundID()
 	SetupLogs()
 
-// #ifndef USE_CUSTOM_ERROR_HANDLER
-// 	world.log = file("[GLOB.log_directory]/dd.log")
-// #else
-// 	if (TgsAvailable())
-// 		world.log = file("[GLOB.log_directory]/dd.log") //not all runtimes trigger world/Error, so this is the only way to ensure we can see all of them.
-// #endif
-
 	// shunt redirected world log from Master's init back into world log proper, now that logging has been set up.
 	shunt_redirected_log()
-
-	config_legacy.post_load()
 
 	if(config && config_legacy.server_name != null && config_legacy.server_suffix && world.port > 0)
 		// dumb and hardcoded but I don't care~
 		config_legacy.server_name += " #[(world.port % 1000) / 100]"
 
 	// TODO - Figure out what this is. Can you assign to world.log?
-	// if(config && config_legacy.log_runtime)
+	// if(config && Configuration.get_entry(/datum/toml_config_entry/backend/logging/toggles/runtime))
 	// 	log = file("data/logs/runtime/[time2text(world.realtime,"YYYY-MM-DD-(hh-mm-ss)")]-runtime.log")
 
 	GLOB.timezoneOffset = get_timezone_offset()
@@ -107,9 +105,6 @@ GLOBAL_LIST(topic_status_cache)
 
 	// Create frame types.
 	populate_frame_types()
-
-	// Create floor types.
-	populate_flooring_types()
 
 	// Create robolimbs for chargen.
 	populate_robolimb_list()
@@ -419,16 +414,17 @@ GLOBAL_LIST(topic_status_cache)
 
 	status = .
 
-/world/proc/update_hub_visibility(new_value)					//CITADEL PROC: TG's method of changing visibility
-	if(new_value)				//I'm lazy so this is how I wrap it to a bool number
-		new_value = TRUE
-	else
-		new_value = FALSE
-	if(new_value == visibility)
+/**
+ * Sets whether or not we're visible on the hub.
+ * * This is the only place where `hub_password` should be touched!
+ * * Never, ever modify `hub` or `visibility`.
+ */
+/world/proc/update_hub_visibility(new_visibility)
+	new_visibility = !!new_visibility
+	if(new_visibility == GLOB.hub_visibility)
 		return
-
-	visibility = new_value
-	if(visibility)
+	GLOB.hub_visibility = new_visibility
+	if(GLOB.hub_visibility)
 		hub_password = "kMZy3U5jJHSiBQjr"
 	else
 		hub_password = "SORRYNOPASSWORD"
@@ -451,6 +447,67 @@ GLOBAL_LIST(topic_status_cache)
 	. = ++maxz
 	max_z_changed(. - 1, .)
 
+//* Ticklag / FPS *//
+
+/// Set FPS
+/world/proc/set_fps(fps)
+	// This isn't just here to avoid duplicate code.
+	// Setting world.tick_lag is a lot more accurate than setting world.fps.
+	// Do not ever set FPs directly.
+	set_ticklag(10 / fps)
+	return world.fps
+
+/// Set ticklag
+/world/proc/set_ticklag(ticklag)
+	// 0.1 is 100 fps.
+	// Round to nearest 1 fps.
+	// We divide 10 by it becuase BYOND measures time in deciseconds, so each second has 10.
+	var/fps = 10 / ticklag
+	fps = clamp(round(fps, 1), 1, 100)
+
+	// FPS that result in repeating decimals for world.time not allowed.
+	// Using them results in floating point inaccuracy within high-precision timing systems.
+	// That's very bad, and causes stuff like timers to infinitely loop or worse.
+	// Not only that, world.time is, as far as I can see, internally rounded
+
+	// terminating decimals are of the form
+	//
+	// k (2**n * 5**m), where
+	//
+	// k = integer
+	// n = some power
+	// m = some power
+
+	// our conversion from FPS to ticklag is conveniently 10 / fps
+	// thus with k = 10,
+	// we try to check for termination on fps
+	if(!is_terminating_fraction(10, fps))
+		// it's not.
+		// yell at them.
+		stack_trace("someone just set ticklag to non-terminating ticklag [ticklag]. this might result in fatal imprecision.")
+
+	// Convert back into ticklag
+	ticklag = 10 / fps
+
+	set_ticklag_impl(ticklag)
+
+/// OH GOD WHAT ARE YOU DOING
+/// this is just here for debugging/admins
+/// because sometimes we want to intentionally make 'bad' ticklags to see
+/// how things react.
+/world/proc/set_ticklag_impl(ticklag)
+	PRIVATE_PROC(TRUE)
+
+	// set
+	var/old = src.tick_lag
+	src.tick_lag = ticklag
+
+	// update
+	for(var/datum/controller/subsystem/subsystem in Master.subsystems)
+		subsystem.on_ticklag_changed(old, ticklag)
+
+//* Log Shunter *//
+
 //! LOG SHUNTER STUFF, LEAVE THIS ALONE
 /**
  * so it turns out that if GLOB init or something before world.log redirect runtimes we have no way of catching it in CI
@@ -462,6 +519,9 @@ GLOBAL_LIST(topic_status_cache)
 #ifndef UNIT_TESTS
 	// we already know, we don't care
 	if(global.world_log_redirected)
+		return
+	// we're not running in tgs, do not redirect world.log
+	if(!world.params["server_service_version"])
 		return
 	global.world_log_redirected = TRUE
 	if(fexists("data/logs/world_init_temporary.log"))
@@ -476,8 +536,13 @@ GLOBAL_LIST(topic_status_cache)
 /world/proc/shunt_redirected_log()
 // if we're unit testing do not ever redirect world.log or the test won't show output.
 #ifndef UNIT_TESTS
+	// we're not running in tgs, do not redirect world.log
+	if(!world.params["server_service_version"])
+		return
+	// if logs are to be redirected, send it to that folder
 	if(!(OVERRIDE_LOG_DIRECTORY_PARAMETER in params))
 		world.log = file("[GLOB.log_directory]/dd.log")
+	// handle pre-init log redirection
 	if(!world_log_redirected)
 		log_world("World log shunt never happened. Something has gone wrong!")
 		return
@@ -493,6 +558,7 @@ GLOBAL_LIST(topic_status_cache)
 #endif
 //! END
 
+//* Byond-Tracy *//
 
 /world/proc/init_byond_tracy()
 	var/library

@@ -91,7 +91,7 @@
 		return
 
 	. += attached_victim ? "beakeractive" : "beakeridle"
-	var/datum/reagents/target_reagents = get_reagent_holder()
+	var/datum/reagent_holder/target_reagents = get_reagent_holder()
 	if(!target_reagents)
 		return
 
@@ -166,7 +166,7 @@
 	else
 		return ..()
 
-/obj/machinery/iv_drip/attack_hand(mob/user, list/params)
+/obj/machinery/iv_drip/attack_hand(mob/user, datum/event_args/actor/clickchain/e_args)
 	if(reagent_container)
 		reagent_container.loc = get_turf(src)
 		reagent_container = null
@@ -187,11 +187,11 @@
 			damage_mode = DAMAGE_MODE_SHARP,
 			weapon_descriptor = "a needle",
 		)
-		chosen_limb.create_wound(CUT, 5)
+		chosen_limb.create_wound(WOUND_TYPE_CUT, 5)
 		detach_iv()
 		return PROCESS_KILL
 
-	var/datum/reagents/target_reagents = get_reagent_holder()
+	var/datum/reagent_holder/target_reagents = get_reagent_holder()
 	if(target_reagents)
 		// Give blood
 		if(injection_mode == IV_INJECTING)
@@ -200,13 +200,13 @@
 				if(istype(reagent_container, /obj/item/reagent_containers/blood))
 					// speed up transfer on blood packs
 					real_transfer_amount *= 2
-				target_reagents.trans_to_mob(attached_victim, real_transfer_amount * delta_time * 0.5, type = CHEM_INJECT)
+				target_reagents.trans_to_mob(attached_victim, real_transfer_amount, type = CHEM_INJECT)
 				update_appearance()
 
 		// Take blood
 		else //? injection_mode == IV_TAKING
 			var/amount = target_reagents.maximum_volume - target_reagents.total_volume
-			amount = min(amount, 4) * delta_time * 0.5
+			amount = clamp(amount, 0, transfer_rate)
 			// If the beaker is full, ping
 			if(!amount)
 				if(prob(5))
@@ -218,7 +218,7 @@
 				visible_message(SPAN_HEAR("[src] beeps loudly."))
 				playsound(loc, 'sound/machines/twobeep_high.ogg', 50, TRUE)
 			var/atom/movable/target = reagent_container
-			attached_victim.inject_blood(target, amount)
+			attached_victim.take_blood(target, amount)
 			update_appearance()
 
 /// Called when an IV is attached.
@@ -233,14 +233,14 @@
 		SPAN_WARNING("[usr] attaches [src] to [target]."),
 		SPAN_NOTICE("You attach [src] to [target]."),
 	)
-	// var/datum/reagents/container = get_reagent_holder()
+	// var/datum/reagent_holder/container = get_reagent_holder()
 	// log_combat(usr, target, "attached_victim", src, "containing: ([container.get_reagent_log_string()])")
 	add_fingerprint(usr)
 	attached_victim = target
 	if(!speed_process)
 		START_MACHINE_PROCESSING(src)
 	else
-		START_PROCESSING(SSfastprocess, src)
+		START_PROCESSING(SSprocess_5fps, src)
 	update_appearance()
 
 	//! Plumbing Signal

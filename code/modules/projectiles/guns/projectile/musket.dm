@@ -11,7 +11,7 @@
 	load_method = SINGLE_CASING
 
 	max_shells = 1
-	caliber = "musket"
+	caliber = /datum/ammo_caliber/musket
 
 	slot_flags = SLOT_BACK
 	w_class = WEIGHT_CLASS_BULKY
@@ -64,7 +64,7 @@
 /obj/item/reagent_containers/glass/powder_horn
 	name = "powder horn"
 	desc = "An ivory container for gunpowder."
-	icon = 'icons/obj/ammo.dmi'
+	icon = 'icons/modules/projectiles/rp_ammo_unused.dmi'
 	icon_state = "powderhorn"
 	w_class = WEIGHT_CLASS_SMALL
 	slot_flags = SLOT_BELT
@@ -93,15 +93,6 @@
 	. = ..()
 	reagents.add_reagent("gunpowder", 30)
 
-/obj/item/gun/ballistic/musket/taj
-	name = "adhomian musket"
-	desc = "For the Tajara, the era of black powder warfare was not all that long ago. As result many genuine Adhomian both reproduction and \
-	even genuine muskets are often seen in the hands of Tajaran civilians, and weapons collectors, especially since such weapons circumvent the \
-	normally strict weapons laws in many Tajaran states."
-	icon_state = "musket-taj"
-	item_state = "musket-taj"
-	wielded_item_state = "musket-taj-wielded"
-
 /obj/item/gun/ballistic/musket/tribal
 	name = "tribal musket"
 	desc = "A musket housed in bone furnishing and held together with sinew. It uses as obsidian striker."
@@ -126,7 +117,6 @@
 	icon_state = "flintlock-brass"
 	item_state = "deagleg"
 
-
 /obj/item/gun/ballistic/musket/pistol/tribal
 	name = "tribal flintlock"
 	desc = "A flintlock pistol cased in bone and sinew. It uses an obsidian striking mechanism, perhaps it should be called an obsidian-lock?"
@@ -138,6 +128,6 @@
 	icon_state = "blunderbuss"
 	item_state = "blunderbuss"
 	wielded_item_state = "blunderbuss-wielded"
-	caliber = "blunderbuss"
+	caliber = /datum/ammo_caliber/blunderbuss
 
-	ammo_type = /obj/item/ammo_casing/musket/blunderbuss
+	ammo_type = /obj/item/ammo_casing/blunderbuss
