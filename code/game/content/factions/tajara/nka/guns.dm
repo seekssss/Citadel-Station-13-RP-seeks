@@ -16,7 +16,8 @@ as their noble knights can't be knightly unless their weapons are ornate enough.
 //One Handed
 ///////////////////
 
-/obj/item/gun/ballistic/revolver/mateba/taj
+// todo: default-unloaded, add /loaded
+/obj/item/gun/projectile/ballistic/revolver/mateba/taj
 	name = "Adhomai revolver"
 	desc = "The Akhan and Khan Royal Service Revolver. Sophisticated but dated, this weapon is a metaphor for the New Kingdom of Adhomai itself."
 	icon = 'icons/content/factions/tajara/items/guns/taj_revolver.dmi'
@@ -25,15 +26,16 @@ as their noble knights can't be knightly unless their weapons are ornate enough.
 	item_state = "revolver"
 	render_use_legacy_by_default = FALSE
 
-/obj/item/gun/ballistic/revolver/mateba/taj/knife
+// todo: default-unloaded, add /loaded
+/obj/item/gun/projectile/ballistic/revolver/mateba/taj/knife
 	name = "Adhomai knife revolver"
 	desc = "An ornate knife revolver from an Adhomai gunsmith. Popular among Tajaran nobility just before the civil war, many of these revolvers \
 	found their way into the market when they were taken as trophies by Grand People's Army soldiers and DPRA guerillas."
 	icon_state = "knifegun"
 	item_state = "knifegun"
 	caliber = /datum/ammo_caliber/a38
-	ammo_type = /obj/item/ammo_casing/a38
-	max_shells = 9 //Large Cyl
+	internal_magazine_preload_ammo = /obj/item/ammo_casing/a38
+	internal_magazine_size = 15
 	damage_force = 15
 	damage_mode = DAMAGE_MODE_SHARP | DAMAGE_MODE_EDGE
 	render_use_legacy_by_default = FALSE
@@ -42,7 +44,8 @@ as their noble knights can't be knightly unless their weapons are ornate enough.
 //Two Handed
 ///////////////////
 
-/obj/item/gun/ballistic/shotgun/pump/rifle/taj
+// todo: default-unloaded, add /loaded
+/obj/item/gun/projectile/ballistic/shotgun/pump/rifle/taj
 	name = "Adhomai bolt action rifle"
 	desc = "The Arkhan & Khan carbine (or just A&K-c) bolt action rifle was adopted by the New Kingdom just after the outbreak of the Adhomai civil war. \
 	After many decades of service it is finally been retired as the New Kingdom embraces modern firearms."
@@ -53,7 +56,8 @@ as their noble knights can't be knightly unless their weapons are ornate enough.
 	wielded_item_state = "boltaction-wielded"
 	render_use_legacy_by_default = FALSE
 
-/obj/item/gun/ballistic/automatic/sts35/taj
+// todo: default-unloaded, add /loaded
+/obj/item/gun/projectile/ballistic/automatic/sts35/taj
 	name = "Adhomai assault rifle"
 	desc = "The Arkhan & Khan 'Halbred' battle rifle uses wooden furniture and brass banding to diguise the fact that it's internals are a knock-off of Hephaestus \
 	Industries' STS-35. The New Kingdom of Adhomai only recently adopted this rifle which it is already rolling out in massive numbers. A feat some say is \
@@ -73,7 +77,7 @@ as their noble knights can't be knightly unless their weapons are ornate enough.
 ///////////////////
 //Energy
 ///////////////////
-/obj/item/gun/energy/retro/taj
+/obj/item/gun/projectile/energy/retro/taj
 	name = "Adhomai dueling laser"
 	desc = "The New Kingdom of Adhomai's was resistant to the adoption of energy weapons until an enterprising Tajara technician presented the crown prince with a ornate \
 	laser pistol built in the style of old flintlock dueling pistols. As planned laser mania instantly took over NKA high society and laser pistols such as these became \
