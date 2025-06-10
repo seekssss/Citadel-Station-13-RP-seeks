@@ -71,6 +71,8 @@
 		/mob/living/carbon/human/proc/shapeshifter_select_tail,
 		/mob/living/carbon/human/proc/shapeshifter_select_ears,
 		/mob/living/carbon/human/proc/shapeshifter_select_horns,
+		/mob/living/carbon/human/proc/hologram_reset_to_slot,
+		/mob/living/proc/set_size,
 	)
 
 	minimum_hair_alpha = MINIMUM_HOLOGRAM_HAIR_ALPHA
@@ -102,6 +104,8 @@
 		/datum/action/holosphere/toggle_transform,
 		/datum/action/holosphere/change_loadout
 	)
+
+	hunger_slowdown_multiplier = 0.5 // they can't eat and hitting 0 hunger makes them absolutely defenceless, no need to punish them much for this
 
 	var/list/chameleon_gear = list(
 		SLOT_ID_UNIFORM = /obj/item/clothing/under/chameleon/holosphere,
@@ -140,6 +144,7 @@
 	transform_component = H.AddComponent(/datum/component/custom_transform, holosphere_shell, null, null, FALSE)
 	holosphere_shell.transform_component = transform_component
 	holosphere_shell.hologram = H
+	holosphere_shell.copy_iff_factions(H)
 
 /datum/species/holosphere/on_remove(mob/living/carbon/human/H)
 	. = ..()
