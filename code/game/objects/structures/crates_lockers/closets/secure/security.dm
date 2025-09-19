@@ -257,7 +257,8 @@
 		/obj/item/clothing/shoes/boots/winter/security,
 		/obj/item/flashlight/maglight,
 		/obj/item/holowarrant,
-		/obj/item/ticket_printer)
+		/obj/item/ticket_printer,
+	)
 
 /obj/structure/closet/secure_closet/security/Initialize(mapload)
 	if(prob(50))
@@ -404,7 +405,6 @@ GLOBAL_LIST_BOILERPLATE(all_brig_closets, /obj/structure/closet/secure_closet/br
 		/obj/item/flashlight/maglight,
 		/obj/item/clothing/head/soft/nanotrasen,
 		/obj/item/clothing/head/beret/nanotrasen,
-		/obj/item/clothing/under/nanotrasen/security,
 		/obj/item/clothing/gloves/black,
 		/obj/item/clothing/shoes/boots/jackboots,
 		/obj/item/clothing/shoes/boots/jackboots/toeless)
@@ -457,8 +457,7 @@ GLOBAL_LIST_BOILERPLATE(all_brig_closets, /obj/structure/closet/secure_closet/br
 		/obj/item/flashlight/maglight,
 		/obj/item/clothing/gloves/black,
 		/obj/item/clothing/shoes/boots/jackboots,
-		/obj/item/clothing/shoes/boots/jackboots/toeless,
-		/obj/item/clothing/under/nanotrasen/security/commander)
+		/obj/item/clothing/shoes/boots/jackboots/toeless)
 
 /obj/structure/closet/secure_closet/nanotrasen_commander/Initialize(mapload)
 	if(prob(25))
@@ -478,7 +477,6 @@ GLOBAL_LIST_BOILERPLATE(all_brig_closets, /obj/structure/closet/secure_closet/br
 
 	starts_with = list(
 		/obj/item/clothing/suit/storage/vest/warden,
-		/obj/item/clothing/under/nanotrasen/security/warden,
 		/obj/item/clothing/suit/storage/vest/wardencoat/alt,
 		/obj/item/clothing/head/helmet/warden,
 		/obj/item/cartridge/security,

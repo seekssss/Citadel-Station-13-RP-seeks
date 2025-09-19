@@ -32,7 +32,7 @@
 
 	var/turf/our_turf = get_turf(user)
 
-	var/final = "<head><style>body {font-family: Verdana; background-color: #C1BDA3;}</style></head><center><h3>Nanotrasen Security Citation</h3><hr>This security citation has been issued to <br><big>[capitalize(ticket_name)]</big></center><b>Reason</b>:<br><i>[details]</i><hr><center><small>See your local representative at Central Command after the shift is over to resolve this issue.</small><br><img src = ntlogo.png></center>"
+	var/final = "<head><style>body {font-family: Verdana; background-color: #A37F97;}</style></head><center><h3>Nanotrasen Security Citation</h3><hr>This security citation has been issued to <br><big>[capitalize(ticket_name)]</big></center><b>Reason</b>:<br><i>[details]</i><hr><center><small>See your local representative at Central Command after the shift is over to resolve this issue.</small><br></center>"
 
 	var/obj/item/paper/sec_ticket/p = new /obj/item/paper/sec_ticket(our_turf)
 
@@ -52,5 +52,5 @@
 	icon_state = "sec_ticket"
 
 /obj/item/paper/sec_ticket/update_icon()
-		icon = icon
-		icon_state = icon_state
+	icon = icon
+	icon_state = icon_state
