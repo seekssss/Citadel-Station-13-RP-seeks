@@ -87,7 +87,7 @@
 	if(!stacktype_legacy)
 		stacktype_legacy = type
 	. = ..()
-	if(merge)
+	if(merge && !mapload)
 		for(var/obj/item/stack/S in loc)
 			if(can_merge(S))
 				merge(S)
@@ -156,7 +156,7 @@
 	. = ..()
 	.["amount"] = get_amount()
 
-/obj/item/stack/ui_act(action, list/params, datum/tgui/ui)
+/obj/item/stack/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state, datum/event_args/actor/actor)
 	. = ..()
 	if(.)
 		return
