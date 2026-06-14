@@ -88,6 +88,20 @@
 	var/pregnant = 0
 	var/child_type = /mob/living/simple_mob/animal/goliath/calf
 
+/mob/living/simple_mob/animal/goliath/Initialize(mapload)
+	. = ..()
+	START_PROCESSING(SSobj, src)
+	if(prob(1))
+		new /mob/living/simple_mob/animal/goliath/ancient(loc)
+		return INITIALIZE_HINT_QDEL
+	goliath_sac = new(50)
+	goliath_sac.my_atom = src
+
+/mob/living/simple_mob/animal/goliath/Destroy()
+	STOP_PROCESSING(SSobj, src)
+	QDEL_NULL(goliath_sac)
+	return ..()
+
 /datum/ai_holder/polaris/simple_mob/melee/goliath
 	hostile = TRUE
 	retaliate = TRUE
@@ -131,21 +145,11 @@
 	else if(pre_attack && !stat)
 		icon_state = pre_attack_icon
 
-
-/mob/living/simple_mob/animal/goliath/Initialize(mapload)
-	. = ..()
-	START_PROCESSING(SSobj, src)
-	if(prob(1))
-		new /mob/living/simple_mob/animal/goliath/ancient(loc)
-		return INITIALIZE_HINT_QDEL
-	goliath_sac = new(50)
-	goliath_sac.my_atom = src
-
 /mob/living/simple_mob/animal/goliath/attackby(obj/item/O, mob/user)
 	var/obj/item/reagent_containers/glass/G = O
 	if(stat == CONSCIOUS && istype(G) && G.is_open_container())
 		user.visible_message("<span class='notice'>[user] drains the sac of the [src] using \the [O].</span>")
-		var/transfered = goliath_sac.trans_id_to(G, "gunpowder", rand(15,30))
+		var/transfered = goliath_sac.trans_id_to(G, "phosphorus", rand(15,30))
 		if(G.reagents.total_volume >= G.volume)
 			to_chat(user, "<font color='red'>The [O] is full.</font>")
 		if(!transfered)
@@ -189,7 +193,7 @@
 
 	if(stat != DEAD)
 		if(goliath_sac && prob(5))
-			goliath_sac.add_reagent("gunpowder", rand(5, 10))
+			goliath_sac.add_reagent("phosphorus", rand(5, 10))
 
 /mob/living/simple_mob/animal/goliath/death()
 	STOP_PROCESSING(SSobj, src)

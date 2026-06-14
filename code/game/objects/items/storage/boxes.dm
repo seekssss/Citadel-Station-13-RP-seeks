@@ -26,6 +26,7 @@
 	item_state = "syringe_kit"
 	max_single_weight_class = WEIGHT_CLASS_SMALL
 	max_combined_volume = STORAGE_VOLUME_BOX
+	weight_volume = ITEM_VOLUME_BOX
 	drop_sound = 'sound/items/drop/cardboardbox.ogg'
 	pickup_sound = 'sound/items/pickup/cardboardbox.ogg'
 	worth_intrinsic = 25
@@ -440,6 +441,7 @@
 	desc = "A small box of 'Space-Proof' premium matches."
 	icon = 'icons/obj/cigarettes.dmi'
 	icon_state = "matchbox"
+	suit_storage_class = SUIT_STORAGE_CLASS_SOFTWEAR
 	w_class = WEIGHT_CLASS_TINY
 	slot_flags = SLOT_BELT
 	insertion_whitelist = list(/obj/item/flame/match)
@@ -447,14 +449,17 @@
 	drop_sound = 'sound/items/drop/matchbox.ogg'
 	pickup_sound =  'sound/items/pickup/matchbox.ogg'
 
-/obj/item/storage/box/matches/attackby(obj/item/flame/match/W as obj, mob/user as mob)
-	if(istype(W) && !W.lit && !W.burnt)
-		W.lit = 1
-		W.damage_type = "burn"
-		W.icon_state = "match_lit"
-		START_PROCESSING(SSobj, W)
-	W.update_icon()
-	return
+/obj/item/storage/box/matches/using_item_on(obj/item/using, datum/event_args/actor/clickchain/clickchain, clickchain_flags)
+	if(istype(using, /obj/item/flame/match))
+		var/obj/item/flame/match/W = using
+		if(istype(W) && !W.lit && !W.burnt)
+			W.lit = 1
+			W.damage_type = "burn"
+			W.icon_state = "match_lit"
+			START_PROCESSING(SSobj, W)
+		W.update_icon()
+		return CLICKCHAIN_DID_SOMETHING | CLICKCHAIN_DO_NOT_PROPAGATE
+	return ..()
 
 /obj/item/storage/box/autoinjectors
 	name = "box of injectors"
@@ -688,3 +693,53 @@
 	max_items = 1
 	insertion_whitelist = list(/obj/item/clothing/suit/storage/hooded/rainponcho)
 	starts_with = list(/obj/item/clothing/suit/storage/hooded/rainponcho)
+
+// Seasonal vending machine boxes
+
+/obj/item/storage/box/gingerbreadcookie
+	name = "Centauri Gingerbread Cookies"
+	icon = 'icons/obj/food.dmi'
+	icon_state = "gingerbreadbox"
+	desc = "Just like mom used to make. Assuming your mom was a trans-stellar food corporation, that is."
+
+	var/startswith = 8
+	max_combined_volume = WEIGHT_VOLUME_SMALL * 8
+	insertion_whitelist = list(
+		/obj/item/reagent_containers/food/snacks/gingerbreadcookie,
+		/obj/item/reagent_containers/food/snacks/gingerbreadcookie/cane,
+		/obj/item/reagent_containers/food/snacks/gingerbreadcookie/star,
+		/obj/item/reagent_containers/food/snacks/gingerbreadcookie/tree
+	)
+	starts_with = list(
+		/obj/item/reagent_containers/food/snacks/gingerbreadcookie,
+		/obj/item/reagent_containers/food/snacks/gingerbreadcookie/cane,
+		/obj/item/reagent_containers/food/snacks/gingerbreadcookie/tree,
+		/obj/item/reagent_containers/food/snacks/gingerbreadcookie/star,
+		/obj/item/reagent_containers/food/snacks/gingerbreadcookie,
+		/obj/item/reagent_containers/food/snacks/gingerbreadcookie/cane,
+		/obj/item/reagent_containers/food/snacks/gingerbreadcookie/tree,
+		/obj/item/reagent_containers/food/snacks/gingerbreadcookie/star
+	)
+
+/obj/item/storage/box/stroopwafel
+	name = "Van Thyssen's Stroopwafels"
+	icon = 'icons/obj/food.dmi'
+	icon_state = "stroopwafelbox"
+	desc = "A hexagonal box of imported holiday treats. Best served with coffee."
+	var/startswith = 7
+	max_combined_volume = WEIGHT_VOLUME_SMALL * 7
+	insertion_whitelist = list(
+		/obj/item/reagent_containers/food/snacks/stroopwafel
+	)
+	starts_with = list(
+		/obj/item/reagent_containers/food/snacks/stroopwafel = 7
+	)
+
+/obj/item/storage/box/holidaycake
+	name = "Christmas Syndi-Cake"
+	desc = "A rare seasonal Syndicake product. The packaging advertises it as having TACTICAL HOLIDAY FLAVOR. It's long past it's expiration date."
+	icon = 'icons/obj/food.dmi'
+	icon_state = "holidaycakebox"
+	w_class = WEIGHT_CLASS_NORMAL
+	max_single_weight_class = WEIGHT_CLASS_NORMAL
+	starts_with = list(/obj/item/reagent_containers/food/snacks/sliceable/holidaycake)
