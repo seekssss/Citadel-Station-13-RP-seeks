@@ -31,6 +31,7 @@ SUBSYSTEM_DEF(zcopy)
 	wait = 1
 	init_order = INIT_ORDER_ZMIMIC
 	priority = FIRE_PRIORITY_ZMIMIC
+	init_stage = INIT_STAGE_WORLD
 	runlevels = RUNLEVELS_DEFAULT | RUNLEVEL_LOBBY
 
 	var/list/queued_turfs = list()
@@ -375,7 +376,7 @@ SUBSYSTEM_DEF(zcopy)
 			var/atom/movable/openspace/turf_mimic/DC = T.below.mimic_above_copy
 			DC.appearance = T.below
 			DC.mouse_opacity = initial(DC.mouse_opacity)
-			DC.plane = OPENTURF_MAX_PLANE
+			DC.plane = OPENTURF_MAX_PLANE - 1	// virtual depth of 1
 
 		else if (T.below.mimic_above_copy)
 			QDEL_NULL(T.below.mimic_above_copy)
@@ -484,7 +485,7 @@ SUBSYSTEM_DEF(zcopy)
 		OO.queued = 0
 
 		// If an atom has explicit plane sets on its overlays/underlays, we need to replace the appearance so they can be mangled to work with our planing.
-		if (OO.zmm_flags & ZMM_MANGLE_PLANES)
+		if (OO.zmm_flags & (ZMM_MANGLE_PLANES | ZMM_AUTOMANGLE))
 			var/new_appearance = fixup_appearance_planes(OO.appearance)
 			if (new_appearance)
 				OO.appearance = new_appearance

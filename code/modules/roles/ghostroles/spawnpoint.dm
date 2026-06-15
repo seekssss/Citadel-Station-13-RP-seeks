@@ -35,6 +35,11 @@ GLOBAL_LIST_EMPTY(ghostrole_spawnpoints)
 			return
 		notify_ghosts("Ghostrole spawner created: [role.name] - [parent] - [get_area(parent)]", source = parent, ignore_mapload = TRUE, flashwindow = FALSE)
 
+/datum/component/ghostrole_spawnpoint/Destroy()
+	proc_to_call_or_callback = null
+	params = null
+	return ..()
+
 /datum/component/ghostrole_spawnpoint/RegisterWithParent()
 	if(!isatom(parent))
 		return COMPONENT_INCOMPATIBLE
@@ -103,6 +108,9 @@ GLOBAL_LIST_EMPTY(ghostrole_spawnpoints)
 			qdel(src)
 		return
 	else
+		if(SSticker.current_state != GAME_STATE_PLAYING)
+			to_chat(user, SPAN_BOLDWARNING("The round is not active please wait for it to start."))
+			return
 		var/choice = tgui_alert(user, "Are you certain you wish to spawn as [role_type]?", "Ghost Role Selection", list("Yes", "No"))
 		if(choice != "Yes")
 			return
